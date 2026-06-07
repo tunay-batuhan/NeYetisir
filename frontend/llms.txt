@@ -1,0 +1,20 @@
+# Ne Yetişir? (neyetisir.com)
+
+> Türkiye'de bir tarım arazisini il/ilçe/mahalle/ada/parsel ile haritada bulup, o parselin hava, iklim ve toprak verisine dayanarak yapay zeka ile "burada ne yetişir?" raporu üreten ücretsiz demo uygulaması.
+
+Kullanıcı bir tarla parselini seçer; uygulama parselin sınırlarını haritada gösterir, açık veri servislerinden (Open-Meteo hava/iklim, ISRIC SoilGrids toprak, TKGM parsel) veri çeker ve bir dil modeliyle Türkçe tarım raporu hazırlar. Rapor; tarla özeti, iklim, toprak, yetişebilecek ürünler ve dikkat edilecekler başlıklarını içerir.
+
+## Ne yapabilir
+
+- Tarla parselini haritada görüntüleme (TKGM verisi)
+- Hava tahmini (7 gün) ve 1991–2020 iklim normali
+- Toprak ve topografya analizi (pH, kil/kum/silt, eğim, bakı, rakım)
+- Yapay zeka ile Türkçe "ne yetişir" raporu ve rapor üzerine sohbet
+- Raporu PDF olarak indirme
+- Kiralık tarla ilanlarını inceleme ve kiralama talebi
+- "Tarlanı kiraya ver", "Çiftçimiz Ol" ve "Tarlama Yardım Al" başvuruları
+
+## Notlar
+
+- Bu bir demo uygulamasıdır; halka açık veri servislerini (TKGM, Open-Meteo, ISRIC SoilGrids) proxy'ler ve sonuçlar bağlayıcı değildir.
+- Dil: Türkçe. Kapsam: Türkiye tarım arazileri.

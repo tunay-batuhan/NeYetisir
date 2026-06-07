@@ -1,0 +1,1 @@
+# Tarlamı Analiz Et

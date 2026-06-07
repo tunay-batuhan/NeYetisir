@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Paneli — Ne Yetişir?</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: {
+        brand: { DEFAULT: "#5fae5f", dark: "#4d9a51", deep: "#2e6b32", soft: "#e8f3e6" }
+      } } }
+    };
+  </script>
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-800">
+
+  <!-- Üst marka barı -->
+  <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+      <div class="flex items-center gap-2.5">
+        <span class="grid h-9 w-9 place-items-center rounded-xl bg-slate-800 text-white shadow-sm">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </span>
+        <span class="text-lg font-bold text-slate-800">Admin Paneli</span>
+      </div>
+      <div id="admin-durum" class="hidden items-center gap-3">
+        <span class="text-sm text-slate-500"><span id="admin-kullanici" class="font-medium text-slate-700"></span></span>
+        <button id="btn-cikis" class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50">Çıkış</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Giriş kartı -->
+  <main id="login-view" class="mx-auto hidden max-w-sm px-4 py-16">
+    <div class="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+      <h1 class="text-xl font-bold text-slate-800">Admin Girişi</h1>
+      <p class="mt-1 text-sm text-slate-500">Kiralık tarla başvurularını yönetmek için giriş yapın.</p>
+      <div id="login-alert" class="hidden mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"></div>
+      <form id="login-form" class="mt-5 space-y-3">
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-600">Kullanıcı adı</label>
+          <input id="l-kullanici" type="text" required autocomplete="username"
+                 class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-600">Parola</label>
+          <input id="l-parola" type="password" required autocomplete="current-password"
+                 class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
+        </div>
+        <button id="l-submit" type="submit"
+                class="w-full rounded-xl bg-slate-800 px-4 py-2.5 font-semibold text-white transition hover:bg-slate-900 disabled:bg-slate-400">Giriş Yap</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Dashboard -->
+  <main id="dash-view" class="mx-auto hidden max-w-6xl px-4 py-8">
+
+    <!-- Sekmeler -->
+    <div class="mb-6 flex gap-1 border-b border-slate-200">
+      <button id="tab-tarlalar" class="-mb-px border-b-2 border-brand px-4 py-2.5 text-sm font-semibold text-slate-800">Kiralık Tarla</button>
+      <button id="tab-talepler" class="-mb-px border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-700">Kiralama Talepleri</button>
+      <button id="tab-ciftciler" class="-mb-px border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-700">Çiftçi Başvuruları</button>
+      <button id="tab-ekim" class="-mb-px border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-700">Ekim Yardımı</button>
+    </div>
+
+    <!-- ===== Sekme: Kiralık Tarla ===== -->
+    <div id="content-tarlalar" class="space-y-8">
+
+    <!-- Yeni kiralık tarla ekle -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-bold text-slate-800">Yeni kiralık tarla ekle</h2>
+        <button id="ekle-toggle" class="text-sm font-medium text-brand hover:text-brand-deep">+ Form aç/kapat</button>
+      </div>
+      <div id="ekle-alert" class="hidden mt-3 rounded-lg border px-3 py-2 text-sm"></div>
+      <form id="ekle-form" class="mt-4 hidden grid gap-3 sm:grid-cols-3">
+        <input id="e-ad_soyad" type="text" placeholder="Ad Soyad *" maxlength="80" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
+        <input id="e-telefon" type="tel" placeholder="Telefon *" maxlength="20" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
+        <input id="e-email" type="email" placeholder="E-posta *" maxlength="120" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
+        <input id="e-il" type="text" placeholder="İl" maxlength="80" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
+        <input id="e-ilce" type="text" placeholder="İlçe" maxlength="80" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
+        <input id="e-mahalle" type="text" placeholder="Mahalle/Köy" maxlength="80" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
+        <input id="e-ada" type="text" placeholder="Ada *" maxlength="32" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
+        <input id="e-parsel" type="text" placeholder="Parsel *" maxlength="32" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
+        <input id="e-alan_m2" type="number" min="1" step="any" placeholder="Alan (m²)" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
+        <select id="e-egim" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand">
+          <option value="">Eğim — seçiniz</option>
+          <option value="düz">Düz</option><option value="hafif eğimli">Hafif eğimli</option>
+          <option value="orta eğimli">Orta eğimli</option><option value="dik">Dik</option>
+        </select>
+        <select id="e-su_durumu" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand">
+          <option value="">Su durumu — seçiniz</option>
+          <option value="sulu">Sulu</option><option value="kısmen sulu">Kısmen sulu</option><option value="kuru">Kuru</option>
+        </select>
+        <select id="e-durum" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand">
+          <option value="yayinda">Durum: Yayında</option>
+          <option value="beklemede">Durum: Beklemede</option>
+        </select>
+        <textarea id="e-aciklama" rows="2" placeholder="Açıklama" maxlength="2000" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand sm:col-span-3"></textarea>
+        <button id="e-submit" type="submit" class="rounded-xl bg-brand px-4 py-2.5 font-semibold text-white transition hover:bg-brand-dark sm:col-span-3">Ekle</button>
+      </form>
+    </section>
+
+    <!-- Başvuru/ilan tablosu -->
+    <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 p-5">
+        <h2 class="text-lg font-bold text-slate-800">Başvurular ve İlanlar</h2>
+        <div class="flex items-center gap-2">
+          <div id="filtre" class="flex rounded-lg bg-slate-100 p-0.5 text-sm"></div>
+          <button id="yenile" class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50">Yenile</button>
+        </div>
+      </div>
+      <div id="tablo-wrap" class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+            <tr>
+              <th class="px-4 py-3">Durum</th>
+              <th class="px-4 py-3">Konum / Ada-Parsel</th>
+              <th class="px-4 py-3">Özellik</th>
+              <th class="px-4 py-3">İletişim</th>
+              <th class="px-4 py-3">Kaynak</th>
+              <th class="px-4 py-3 text-right">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody id="tablo-body"></tbody>
+        </table>
+      </div>
+      <div id="tablo-bos" class="hidden p-10 text-center text-sm text-slate-400">Bu filtrede kayıt yok.</div>
+    </section>
+    </div><!-- /content-tarlalar -->
+
+    <!-- ===== Sekme: Kiralama Talepleri ===== -->
+    <div id="content-talepler" class="hidden">
+      <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 p-5">
+          <h2 class="text-lg font-bold text-slate-800">Kiralama Talepleri</h2>
+          <div class="flex items-center gap-2">
+            <div id="filtre-talep" class="flex rounded-lg bg-slate-100 p-0.5 text-sm"></div>
+            <button id="yenile-talep" class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50">Yenile</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+              <tr>
+                <th class="px-4 py-3">Durum</th>
+                <th class="px-4 py-3">Başvurulan Tarla</th>
+                <th class="px-4 py-3">Başvuran</th>
+                <th class="px-4 py-3">İletişim</th>
+                <th class="px-4 py-3 text-right">İşlemler</th>
+              </tr>
+            </thead>
+            <tbody id="tablo-talep-body"></tbody>
+          </table>
+        </div>
+        <div id="tablo-talep-bos" class="hidden p-10 text-center text-sm text-slate-400">Bu filtrede kayıt yok.</div>
+      </section>
+    </div><!-- /content-talepler -->
+
+    <!-- ===== Sekme: Çiftçi Başvuruları ===== -->
+    <div id="content-ciftciler" class="hidden">
+      <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 p-5">
+          <h2 class="text-lg font-bold text-slate-800">Çiftçi Başvuruları</h2>
+          <div class="flex items-center gap-2">
+            <div id="filtre-ciftci" class="flex rounded-lg bg-slate-100 p-0.5 text-sm"></div>
+            <button id="yenile-ciftci" class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50">Yenile</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+              <tr>
+                <th class="px-4 py-3">Durum</th>
+                <th class="px-4 py-3">Ad Soyad</th>
+                <th class="px-4 py-3">Şehir</th>
+                <th class="px-4 py-3">Deneyim</th>
+                <th class="px-4 py-3">İletişim</th>
+                <th class="px-4 py-3 text-right">İşlemler</th>
+              </tr>
+            </thead>
+            <tbody id="tablo-ciftci-body"></tbody>
+          </table>
+        </div>
+        <div id="tablo-ciftci-bos" class="hidden p-10 text-center text-sm text-slate-400">Bu filtrede kayıt yok.</div>
+      </section>
+    </div><!-- /content-ciftciler -->
+
+    <!-- ===== Sekme: Ekim Yardımı ===== -->
+    <div id="content-ekim" class="hidden">
+      <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 p-5">
+          <h2 class="text-lg font-bold text-slate-800">Ekim Yardımı Talepleri</h2>
+          <div class="flex items-center gap-2">
+            <div id="filtre-ekim" class="flex rounded-lg bg-slate-100 p-0.5 text-sm"></div>
+            <button id="yenile-ekim" class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50">Yenile</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+              <tr>
+                <th class="px-4 py-3">Durum</th>
+                <th class="px-4 py-3">Konum / Ada-Parsel</th>
+                <th class="px-4 py-3">Ad Soyad</th>
+                <th class="px-4 py-3">İletişim</th>
+                <th class="px-4 py-3">İhtiyaç</th>
+                <th class="px-4 py-3 text-right">İşlemler</th>
+              </tr>
+            </thead>
+            <tbody id="tablo-ekim-body"></tbody>
+          </table>
+        </div>
+        <div id="tablo-ekim-bos" class="hidden p-10 text-center text-sm text-slate-400">Bu filtrede kayıt yok.</div>
+      </section>
+    </div><!-- /content-ekim -->
+  </main>
+
+  <script src="/admin.js"></script>
+</body>
+</html>

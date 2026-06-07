@@ -1,0 +1,6 @@
+# Demo aşaması — tüm arama motoru / crawler indekslemesi kapalı.
+# Not: yalnızca kibar botlar buna uyar; asıl koruma IP rate-limit'lerdir.
+# İstisna: /llms.txt — yapay zekaların sitenin ne olduğunu öğrenmesi için açık.
+User-agent: *
+Allow: /llms.txt
+Disallow: /

@@ -1,0 +1,68 @@
+/* Leaflet defaults play well with Tailwind, az override yeter. */
+.leaflet-container { background: #e9efe7; }
+
+/* Tam ekran düzende zoom (sol) ve katman (sağ) kontrollerini üst barın altına it. */
+.leaflet-top { top: 72px; }
+.leaflet-control-zoom, .leaflet-control-layers {
+  border: none !important;
+  border-radius: 0.6rem !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
+}
+
+#alert.error { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+#alert.info  { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+
+/* Auth modal hata/bilgi satırı */
+#auth-alert.error { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+#auth-alert.info  { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+
+/* Profil kartı: seçili radyo varsa marka renkli vurgu (:has modern tarayıcı) */
+.profil-kart:has(input:checked) { border-color: #5fae5f; background: #e8f3e6; }
+
+/* Sağ sonuç panelinde ince scrollbar */
+#results-panel .overflow-y-auto { scrollbar-width: thin; }
+#results-panel .overflow-y-auto::-webkit-scrollbar { width: 8px; }
+#results-panel .overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1; border-radius: 4px;
+}
+
+/* Mobilde de zoom kontrolü ile çakışmasın */
+@media (max-width: 640px) {
+  #query-wrap { top: 9rem; }
+}
+
+/* Geniş AI rapor okuma tipografisi (Tailwind typography plugin'i Play CDN'de yok) */
+#rapor-content { max-width: 72ch; margin: 0 auto; line-height: 1.7; color: #1f2937; font-size: 0.95rem; }
+#rapor-content > :first-child { margin-top: 0; }
+#rapor-content h1 { font-size: 1.5rem; font-weight: 700; margin: 1.3em 0 .5em; color: #2e6b32; }
+#rapor-content h2 { font-size: 1.25rem; font-weight: 700; margin: 1.2em 0 .4em; color: #2e6b32;
+  border-bottom: 1px solid #e5e7eb; padding-bottom: .25em; }
+#rapor-content h3 { font-size: 1.05rem; font-weight: 600; margin: 1em 0 .3em; color: #374151; }
+#rapor-content p { margin: .6em 0; }
+#rapor-content ul { list-style: disc; margin: .5em 0; padding-left: 1.4em; }
+#rapor-content ol { list-style: decimal; margin: .5em 0; padding-left: 1.4em; }
+#rapor-content li { margin: .3em 0; }
+#rapor-content strong { font-weight: 700; color: #111827; }
+#rapor-content a { color: #047857; text-decoration: underline; }
+#rapor-content blockquote { border-left: 3px solid #bbf7d0; padding-left: .9em; color: #4b5563; margin: .8em 0; }
+#rapor-content code { background: #f1f5f9; padding: .1em .35em; border-radius: .25em; font-size: .9em; }
+#rapor-content table { width: 100%; border-collapse: collapse; margin: .9em 0; font-size: .9em; }
+#rapor-content th, #rapor-content td { border: 1px solid #e5e7eb; padding: .45em .65em; text-align: left; }
+#rapor-content th { background: #f1f5f9; font-weight: 600; }
+#rapor-content hr { border: 0; border-top: 1px solid #e5e7eb; margin: 1.2em 0; }
+
+/* Rapor infografik kartları (gerçek veriden çizilen SVG) */
+#rapor-infografik { margin: 0 auto .4em; max-width: 72ch; }
+#rapor-infografik .ig-card { background: #fff; border: 1px solid #e5e7eb; border-radius: .6rem;
+  padding: .6rem .7rem .5rem; box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+#rapor-infografik .ig-baslik { font-size: .8rem; font-weight: 700; color: #2e6b32;
+  margin-bottom: .35rem; }
+#rapor-infografik svg { display: block; width: 100%; height: auto; }
+
+/* Sohbet baloncuklarında markdown */
+#sohbet-mesajlar .prose p { margin: .35em 0; }
+#sohbet-mesajlar .prose p:first-child { margin-top: 0; }
+#sohbet-mesajlar .prose p:last-child { margin-bottom: 0; }
+#sohbet-mesajlar .prose ul { list-style: disc; margin: .35em 0; padding-left: 1.2em; }
+#sohbet-mesajlar .prose ol { list-style: decimal; margin: .35em 0; padding-left: 1.2em; }
+#sohbet-mesajlar .prose strong { font-weight: 700; }
