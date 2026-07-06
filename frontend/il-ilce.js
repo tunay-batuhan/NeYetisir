@@ -9,6 +9,24 @@ window.IlIlce = (function () {
     return r.json();
   }
 
+  // il/ilçe listeleri neredeyse hiç değişmez — localStorage'da 7 gün önbellekleyip
+  // her sayfa açılışında backend'e tekrar gitmeyi önlüyoruz.
+  const LOC_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+  async function fetchJsonCached(url) {
+    const key = `neyetisir_loc_cache:${url}`;
+    try {
+      const cached = JSON.parse(localStorage.getItem(key));
+      if (cached && Date.now() - cached.t < LOC_CACHE_TTL_MS) return cached.d;
+    } catch (_) {}
+    const data = await fetchJson(url);
+    try {
+      localStorage.setItem(key, JSON.stringify({ t: Date.now(), d: data }));
+    } catch (_) {
+      // localStorage dolu/kapalı olabilir — önbellek olmadan devam, işlevi bozmaz.
+    }
+    return data;
+  }
+
   const CHEVRON = `<path d="m6 9 6 6 6-6"/>`;
   const SPINNER = `<style>@keyframes _spin{to{transform:rotate(360deg)}}</style>
     <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" stroke-dasharray="28 56"
@@ -65,7 +83,7 @@ window.IlIlce = (function () {
       fillSelect(ilceSel, [], window.I18n.t("query.loading") || "Yükleniyor…");
       setYukleniyor(ilceSel, true);
       try {
-        const ilceler = await fetchJson(`/api/ilceler?ilId=${encodeURIComponent(ilId)}`);
+        const ilceler = await fetchJsonCached(`/api/ilceler?ilId=${encodeURIComponent(ilId)}`);
         fillSelect(ilceSel, ilceler, window.I18n.t("query.select_ilce") || "— İlçe seçin —");
         ilceSel.disabled = false;
       } catch (e) {
@@ -95,7 +113,7 @@ window.IlIlce = (function () {
     setYukleniyor(ilSel, true);
     (async () => {
       try {
-        const iller = await fetchJson("/api/iller");
+        const iller = await fetchJsonCached("/api/iller");
         fillSelect(ilSel, iller, window.I18n.t("query.select_il") || "— İl seçin —");
         if (onceden && onceden.il && secByAd(ilSel, onceden.il)) {
           await yukleIlceler(ilSel.value, onceden.ilce);

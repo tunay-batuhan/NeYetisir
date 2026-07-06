@@ -151,6 +151,24 @@
     return r.json();
   }
 
+  // il/ilçe/mahalle listeleri neredeyse hiç değişmez — localStorage'da 7 gün
+  // önbellekleyip her sayfa açılışında TKGM'e/backend'e tekrar gitmeyi önlüyoruz.
+  const LOC_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+  async function fetchJsonCached(url) {
+    const key = `neyetisir_loc_cache:${url}`;
+    try {
+      const cached = JSON.parse(localStorage.getItem(key));
+      if (cached && Date.now() - cached.t < LOC_CACHE_TTL_MS) return cached.d;
+    } catch (_) {}
+    const data = await fetchJson(url);
+    try {
+      localStorage.setItem(key, JSON.stringify({ t: Date.now(), d: data }));
+    } catch (_) {
+      // localStorage dolu/kapalı olabilir — önbellek olmadan devam, işlevi bozmaz.
+    }
+    return data;
+  }
+
   // --- Panel & chrome controls -------------------------------------------
 
   const resultsPanel = $("results-panel");
@@ -299,7 +317,7 @@
   async function loadIller() {
     spinSel(ilSel, true);
     try {
-      const iller = await fetchJson("/api/iller?geo=1");
+      const iller = await fetchJsonCached("/api/iller?geo=1");
       cacheGeoms("il", iller);
       fillSelect(ilSel, iller, window.I18n.t("query.select_il") || "— İl seçin —");
     } catch (e) {
@@ -321,7 +339,7 @@
     }
     spinSel(ilceSel, true);
     try {
-      const items = await fetchJson(`/api/ilceler?ilId=${encodeURIComponent(ilId)}&geo=1`);
+      const items = await fetchJsonCached(`/api/ilceler?ilId=${encodeURIComponent(ilId)}&geo=1`);
       cacheGeoms("ilce", items);
       fillSelect(ilceSel, items, window.I18n.t("query.select_ilce"));
       ilceSel.disabled = false;
@@ -343,7 +361,7 @@
       return;
     }
     try {
-      const items = await fetchJson(`/api/mahalleler?ilceId=${encodeURIComponent(ilceId)}&geo=1`);
+      const items = await fetchJsonCached(`/api/mahalleler?ilceId=${encodeURIComponent(ilceId)}&geo=1`);
       cacheGeoms("mahalle", items);
       fillSelect(mahSel, items, window.I18n.t("query.select_mahalle") || "— Mahalle seçin —");
       mahSel.disabled = false;
