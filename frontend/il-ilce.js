@@ -1,25 +1,12 @@
-// Paylaşılan il/ilçe cascading-select yardımcısı — TKGM public API'sine
-// doğrudan tarayıcıdan istek atar (kullanıcı kendi IP'sini kullanır).
+// Paylaşılan il/ilçe cascading-select yardımcısı — /api/iller ve /api/ilceler'i
+// kullanır. Backend'deki il/ilçe alanları serbest metin olduğu için (TKGM id'sine
+// referans değil) form gönderiminde seçili option'ın görünen adı (ad) kullanılır;
+// id yalnızca ilçe listesini çekmek için tutulur.
 window.IlIlce = (function () {
-  const TKGM_IL  = "https://cbsapi.tkgm.gov.tr/megsiswebapi.v3.1/api/idariYapi/ilListe";
-  const TKGM_ILC = "https://cbsapi.tkgm.gov.tr/megsiswebapi.v3.1/api/idariYapi/ilceListe";
-
   async function fetchJson(url) {
     const r = await fetch(url);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     return r.json();
-  }
-
-  // TKGM GeoJSON FeatureCollection → [{id, ad}] Türkçe alfabetik sıralı
-  function parseTkgm(fc) {
-    const feats = (fc && fc.features) || [];
-    return feats
-      .map(f => {
-        const p = (f && f.properties) || {};
-        return p.id != null && p.text != null ? { id: String(p.id), ad: String(p.text) } : null;
-      })
-      .filter(Boolean)
-      .sort((a, b) => a.ad.localeCompare(b.ad, "tr"));
   }
 
   const CHEVRON = `<path d="m6 9 6 6 6-6"/>`;
@@ -78,8 +65,7 @@ window.IlIlce = (function () {
       fillSelect(ilceSel, [], window.I18n.t("query.loading") || "Yükleniyor…");
       setYukleniyor(ilceSel, true);
       try {
-        const raw = await fetchJson(`${TKGM_ILC}/${encodeURIComponent(ilId)}`);
-        const ilceler = parseTkgm(raw);
+        const ilceler = await fetchJson(`/api/ilceler?ilId=${encodeURIComponent(ilId)}`);
         fillSelect(ilceSel, ilceler, window.I18n.t("query.select_ilce") || "— İlçe seçin —");
         ilceSel.disabled = false;
       } catch (e) {
@@ -109,8 +95,7 @@ window.IlIlce = (function () {
     setYukleniyor(ilSel, true);
     (async () => {
       try {
-        const raw = await fetchJson(TKGM_IL);
-        const iller = parseTkgm(raw);
+        const iller = await fetchJson("/api/iller");
         fillSelect(ilSel, iller, window.I18n.t("query.select_il") || "— İl seçin —");
         if (onceden && onceden.il && secByAd(ilSel, onceden.il)) {
           await yukleIlceler(ilSel.value, onceden.ilce);

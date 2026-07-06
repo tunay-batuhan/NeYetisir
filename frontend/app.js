@@ -137,23 +137,6 @@
     return r.json();
   }
 
-  const TKGM_IL  = "https://cbsapi.tkgm.gov.tr/megsiswebapi.v3.1/api/idariYapi/ilListe";
-  const TKGM_ILC = "https://cbsapi.tkgm.gov.tr/megsiswebapi.v3.1/api/idariYapi/ilceListe";
-  const TKGM_MAH = "https://cbsapi.tkgm.gov.tr/megsiswebapi.v3.1/api/idariYapi/mahalleListe";
-
-  function parseTkgm(fc) {
-    const feats = (fc && fc.features) || [];
-    return feats
-      .map(f => {
-        const p = (f && f.properties) || {};
-        return p.id != null && p.text != null
-          ? { id: String(p.id), ad: String(p.text), geometry: (f.geometry || null) }
-          : null;
-      })
-      .filter(Boolean)
-      .sort((a, b) => a.ad.localeCompare(b.ad, "tr"));
-  }
-
   // --- Panel & chrome controls -------------------------------------------
 
   const resultsPanel = $("results-panel");
@@ -301,7 +284,7 @@
 
   async function loadIller() {
     try {
-      const iller = parseTkgm(await fetchJson(TKGM_IL));
+      const iller = await fetchJson("/api/iller");
       cacheGeoms("il", iller);
       fillSelect(ilSel, iller, window.I18n.t("query.select_il") || "— İl seçin —");
     } catch (e) {
@@ -320,7 +303,7 @@
       return;
     }
     try {
-      const items = parseTkgm(await fetchJson(`${TKGM_ILC}/${encodeURIComponent(ilId)}`));
+      const items = await fetchJson(`/api/ilceler?ilId=${encodeURIComponent(ilId)}`);
       cacheGeoms("ilce", items);
       fillSelect(ilceSel, items, window.I18n.t("query.select_ilce"));
       ilceSel.disabled = false;
@@ -342,7 +325,7 @@
       return;
     }
     try {
-      const items = parseTkgm(await fetchJson(`${TKGM_MAH}/${encodeURIComponent(ilceId)}`));
+      const items = await fetchJson(`/api/mahalleler?ilceId=${encodeURIComponent(ilceId)}`);
       cacheGeoms("mahalle", items);
       fillSelect(mahSel, items, window.I18n.t("query.select_mahalle") || "— Mahalle seçin —");
       mahSel.disabled = false;

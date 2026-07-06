@@ -152,3 +152,45 @@ docker start tarla
 docker rmi tarla:onceki          # eski image'ı sil
 rm /root/*-yedek-*.tar.gz        # eski yedekleri sil (yenisi alınmışsa)
 ```
+
+###### ################################### HIZLI ROTA
+
+# 1) Yedek al
+
+docker tag tarla:latest tarla:onceki
+tar czf /root/tarla-data-yedek-$(date +%F-%H%M).tar.gz -C /var/lib/docker/volumes/tarla-data/\_data .
+
+# 2) Son kodu çek
+
+cd /root/tarla-islet-kodlari && git pull
+
+# 3) Kodu canlı klasöre kopyala
+
+rsync -a --delete --exclude='**pycache**' --exclude='\*.pyc' \
+ /root/tarla-islet-kodlari/backend/ /opt/tarla/backend/
+rsync -a --delete /root/tarla-islet-kodlari/frontend/ /opt/tarla/frontend/
+
+# 4) Image build et
+
+cd /opt/tarla && docker build -t tarla:latest .
+
+# 5) Konteyneri değiştir
+
+docker rm -f tarla
+docker run -d --name tarla \
+ --restart unless-stopped \
+ --env-file /opt/tarla/.env \
+ -p 127.0.0.1:8000:8000 \
+ -v tarla-data:/app/data \
+ tarla:latest
+
+# 6) Sağlık kontrolü
+
+sleep 5
+curl -s -o /dev/null -w 'HTTP durum: %{http_code}\n' http://127.0.0.1:8000/
+docker ps --filter name=tarla --format '{{.Names}} {{.Status}}'
+
+# sorun çıkarssa yedeğe geri dön
+
+docker rm -f tarla
+docker run -d --name tarla --restart unless-stopped --env-file /opt/tarla/.env -p 127.0.0.1:8000:8000 -v tarla-data:/app/data tarla:onceki
