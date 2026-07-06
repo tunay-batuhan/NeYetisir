@@ -59,6 +59,7 @@ window.I18n = (function () {
     });
     document.documentElement.lang = window.i18next.language;
     updateLangButtons();
+    document.dispatchEvent(new CustomEvent("i18n:applied"));
   }
 
   function updateLangButtons() {

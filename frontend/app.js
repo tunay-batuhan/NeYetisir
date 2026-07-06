@@ -98,6 +98,18 @@
     submitLabel.textContent = on ? window.I18n.t("query.submit_loading") : window.I18n.t("query.submit");
   }
 
+  // Select'in ilk option'ı (value="") her zaman placeholder'dır — dil
+  // değişince yeniden fetch yapmadan yalnız bu metni günceller.
+  function retranslatePlaceholder(sel, key) {
+    const ph = sel.options[0];
+    if (ph && ph.value === "") ph.textContent = window.I18n.t(key);
+  }
+  document.addEventListener("i18n:applied", () => {
+    retranslatePlaceholder(ilSel, "query.select_il");
+    retranslatePlaceholder(ilceSel, ilceSel.disabled ? "query.none_placeholder" : "query.select_ilce");
+    retranslatePlaceholder(mahSel, mahSel.disabled ? "query.none_placeholder" : "query.select_mahalle");
+  });
+
   function fillSelect(sel, items, placeholder) {
     sel.innerHTML = "";
     const ph = document.createElement("option");
@@ -125,7 +137,7 @@
     return r.json();
   }
 
-  const TKGM_IL  = "https://parselsorgu.tkgm.gov.tr/app/modules/administrativeQuery/data/ilListe.json";
+  const TKGM_IL  = "https://cbsapi.tkgm.gov.tr/megsiswebapi.v3.1/api/idariYapi/ilListe";
   const TKGM_ILC = "https://cbsapi.tkgm.gov.tr/megsiswebapi.v3.1/api/idariYapi/ilceListe";
   const TKGM_MAH = "https://cbsapi.tkgm.gov.tr/megsiswebapi.v3.1/api/idariYapi/mahalleListe";
 

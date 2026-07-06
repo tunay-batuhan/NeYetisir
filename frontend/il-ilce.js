@@ -1,7 +1,7 @@
 // Paylaşılan il/ilçe cascading-select yardımcısı — TKGM public API'sine
 // doğrudan tarayıcıdan istek atar (kullanıcı kendi IP'sini kullanır).
 window.IlIlce = (function () {
-  const TKGM_IL  = "https://parselsorgu.tkgm.gov.tr/app/modules/administrativeQuery/data/ilListe.json";
+  const TKGM_IL  = "https://cbsapi.tkgm.gov.tr/megsiswebapi.v3.1/api/idariYapi/ilListe";
   const TKGM_ILC = "https://cbsapi.tkgm.gov.tr/megsiswebapi.v3.1/api/idariYapi/ilceListe";
 
   async function fetchJson(url) {
@@ -91,6 +91,17 @@ window.IlIlce = (function () {
     }
 
     ilSel.addEventListener("change", () => yukleIlceler(ilSel.value));
+
+    // Select option'ları dinamik doldurulduğu için data-i18n ile otomatik
+    // çevrilmez — dil değişince placeholder'ı yeniden fetch yapmadan günceller.
+    document.addEventListener("i18n:applied", () => {
+      const phIl = ilSel.options[0];
+      if (phIl && phIl.value === "") phIl.textContent = window.I18n.t("query.select_il");
+      const phIlce = ilceSel.options[0];
+      if (phIlce && phIlce.value === "") {
+        phIlce.textContent = window.I18n.t(ilceSel.disabled ? "query.none_placeholder" : "query.select_ilce");
+      }
+    });
 
     // İlk yükleme placeholder'ı statik HTML'de zaten var (data-i18n="query.loading")
     // — burada tekrar yazmıyoruz çünkü sayfa açılışında i18next henüz hazır
