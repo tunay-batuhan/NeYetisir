@@ -77,6 +77,12 @@ def init_db(db_path: str) -> None:
                 alan_m2    REAL,
                 egim       TEXT,                   -- "düz" | "hafif eğimli" | "orta eğimli" | "dik"
                 su_durumu  TEXT,                   -- "sulu" | "kuru" | "kısmen sulu"
+                agac_var   TEXT,                   -- "evet" | "hayır"
+                tas_var    TEXT,                   -- "evet" | "hayır"
+                son_urun   TEXT,                   -- en son ekilen ürün
+                kimyasal_gubre_var      TEXT,       -- "evet" | "hayır"
+                kimyasal_gubre_aciklama TEXT,       -- evet ise kullanılan ürün
+                su_kaynagina_uzaklik_km REAL,
                 aciklama   TEXT,
                 kaynak     TEXT NOT NULL DEFAULT 'basvuru',   -- 'basvuru' | 'admin'
                 durum      TEXT NOT NULL DEFAULT 'beklemede', -- 'beklemede' | 'yayinda' | 'reddedildi'
@@ -131,6 +137,12 @@ def init_db(db_path: str) -> None:
                 ada        TEXT,
                 parsel     TEXT,
                 alan_m2    REAL,
+                agac_var   TEXT,                   -- "evet" | "hayır"
+                tas_var    TEXT,                   -- "evet" | "hayır"
+                son_urun   TEXT,                   -- en son ekilen ürün
+                kimyasal_gubre_var      TEXT,       -- "evet" | "hayır"
+                kimyasal_gubre_aciklama TEXT,       -- evet ise kullanılan ürün
+                su_kaynagina_uzaklik_km REAL,
                 aciklama   TEXT,
                 durum      TEXT NOT NULL DEFAULT 'beklemede', -- 'beklemede' | 'onaylandi' | 'reddedildi'
                 created_at TEXT NOT NULL,
@@ -150,9 +162,44 @@ def init_db(db_path: str) -> None:
                 admin_id   INTEGER NOT NULL,
                 expires_at TEXT NOT NULL
             );
+            -- TKGM parsel sorgu cache'i: aynı mahalle/ada/parsel tekrar sorgulanınca
+            -- gayri resmi TKGM endpoint'ine gitmeden burdan döner. 90 gün TTL
+            -- (created_at ile hesaplanır) — kadastro nadiren güncellenir ama süresiz tutmuyoruz.
+            CREATE TABLE IF NOT EXISTS parsel_cache (
+                mahalle_id TEXT NOT NULL,
+                ada        TEXT NOT NULL,
+                parsel     TEXT NOT NULL,
+                veri_json  TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                PRIMARY KEY (mahalle_id, ada, parsel)
+            );
             """
         )
         _conn.commit()
+    _migrate_ekstra_kolonlar(_conn)
+
+
+# Şema evrimi: CREATE TABLE IF NOT EXISTS var olan tabloya yeni kolon eklemez.
+# Bu yüzden tarla-anketi alanları sonradan eklenince mevcut app.db'lerde
+# ALTER TABLE ile tamamlanır (idempotent — PRAGMA table_info ile kontrol edilir).
+_TARLA_SURVEY_KOLONLARI = (
+    ("agac_var", "TEXT"),
+    ("tas_var", "TEXT"),
+    ("son_urun", "TEXT"),
+    ("kimyasal_gubre_var", "TEXT"),
+    ("kimyasal_gubre_aciklama", "TEXT"),
+    ("su_kaynagina_uzaklik_km", "REAL"),
+)
+
+
+def _migrate_ekstra_kolonlar(conn: sqlite3.Connection) -> None:
+    with _lock:
+        for tablo in ("kiralik_tarla", "ekim_yardim"):
+            mevcut = {row[1] for row in conn.execute(f"PRAGMA table_info({tablo})").fetchall()}
+            for kolon, tur in _TARLA_SURVEY_KOLONLARI:
+                if kolon not in mevcut:
+                    conn.execute(f"ALTER TABLE {tablo} ADD COLUMN {kolon} {tur}")
+        conn.commit()
 
 
 def _require_conn() -> sqlite3.Connection:
@@ -309,7 +356,9 @@ def ip_istek_say(ip: str, kategori: str, since_iso: str) -> int:
 # Çiftçi formundan / admin formundan gelen alanlar (id/durum/zaman hariç).
 _KIRALIK_ALANLAR = (
     "ad_soyad", "email", "telefon", "il", "ilce", "mahalle",
-    "ada", "parsel", "alan_m2", "egim", "su_durumu", "aciklama",
+    "ada", "parsel", "alan_m2", "egim", "su_durumu",
+    "agac_var", "tas_var", "son_urun", "kimyasal_gubre_var", "kimyasal_gubre_aciklama",
+    "su_kaynagina_uzaklik_km", "aciklama",
 )
 
 
@@ -442,7 +491,9 @@ def ciftci_sil(kayit_id: int) -> bool:
 # Başvuru formundan gelen alanlar (id/durum/zaman hariç).
 _EKIM_YARDIM_ALANLAR = (
     "ad_soyad", "telefon", "email", "il", "ilce", "mahalle",
-    "ada", "parsel", "alan_m2", "aciklama",
+    "ada", "parsel", "alan_m2",
+    "agac_var", "tas_var", "son_urun", "kimyasal_gubre_var", "kimyasal_gubre_aciklama",
+    "su_kaynagina_uzaklik_km", "aciklama",
 )
 
 
@@ -626,3 +677,37 @@ def close() -> None:
     if _conn is not None:
         _conn.close()
         _conn = None
+
+
+# --- Parsel sorgu cache'i ----------------------------------------------------
+
+PARSEL_CACHE_TTL_GUN = 90
+
+
+def parsel_cache_getir(mahalle_id: str, ada: str, parsel: str) -> str | None:
+    """90 günden eski değilse cache'lenmiş ParselSonuc JSON'ını döndürür, yoksa None."""
+    conn = _require_conn()
+    sinir = (datetime.now(timezone.utc) - timedelta(days=PARSEL_CACHE_TTL_GUN)).isoformat()
+    with _lock:
+        row = conn.execute(
+            "SELECT veri_json FROM parsel_cache "
+            "WHERE mahalle_id = ? AND ada = ? AND parsel = ? AND created_at >= ?",
+            (mahalle_id, ada, parsel, sinir),
+        ).fetchone()
+    return row[0] if row else None
+
+
+def parsel_cache_kaydet(mahalle_id: str, ada: str, parsel: str, veri_json: str) -> None:
+    conn = _require_conn()
+    now = datetime.now(timezone.utc).isoformat()
+    with _lock:
+        conn.execute(
+            """
+            INSERT INTO parsel_cache (mahalle_id, ada, parsel, veri_json, created_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(mahalle_id, ada, parsel)
+            DO UPDATE SET veri_json = excluded.veri_json, created_at = excluded.created_at
+            """,
+            (mahalle_id, ada, parsel, veri_json, now),
+        )
+        conn.commit()

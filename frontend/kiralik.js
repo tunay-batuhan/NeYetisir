@@ -26,11 +26,13 @@
   }
 
   function kart(t) {
-    const konum = [t.il, t.ilce, t.mahalle].filter(Boolean).join(" / ") || "Konum belirtilmemiş";
+    const konum = [t.il, t.ilce, t.mahalle].filter(Boolean).join(" / ") || window.I18n.t("kiralik.location_unset");
     const alan = fmtAlan(t.alan_m2);
     const rozetler = [];
-    if (t.egim) rozetler.push(rozet(`Eğim: ${t.egim}`, "bg-slate-100 text-slate-600"));
+    if (t.egim) rozetler.push(rozet(`${window.I18n.t("kiralik.slope_prefix")}${t.egim}`, "bg-slate-100 text-slate-600"));
     if (t.su_durumu) rozetler.push(rozet(t.su_durumu, SU_RENK[t.su_durumu] || "bg-slate-100 text-slate-600"));
+    const adaLabel = window.I18n.t("query.placeholder_ada");
+    const parselLabel = window.I18n.t("query.placeholder_parsel");
 
     const el = document.createElement("div");
     el.className = "flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md";
@@ -38,7 +40,7 @@
       <div class="flex items-start justify-between gap-2">
         <div>
           <div class="text-xs font-medium uppercase tracking-wide text-brand">${esc(konum)}</div>
-          <div class="mt-0.5 text-lg font-bold text-slate-800">Ada ${esc(t.ada)} / Parsel ${esc(t.parsel)}</div>
+          <div class="mt-0.5 text-lg font-bold text-slate-800">${adaLabel} ${esc(t.ada)} / ${parselLabel} ${esc(t.parsel)}</div>
         </div>
         <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand-deep">
           <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -54,7 +56,7 @@
                 class="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
-          Tarlayı kiralamak için başvur
+          ${window.I18n.t("kiralik.apply_title")}
         </button>
       </div>`;
     return el;
@@ -81,8 +83,10 @@
   grid.addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-basvur]");
     if (!btn) return;
-    const konum = btn.dataset.konum && btn.dataset.konum !== "Konum belirtilmemiş" ? btn.dataset.konum + " · " : "";
-    basvurAc(Number(btn.dataset.basvur), `${konum}Ada ${btn.dataset.ada} / Parsel ${btn.dataset.parsel}`);
+    const belirsizKonum = window.I18n.t("kiralik.location_unset");
+    const konum = btn.dataset.konum && btn.dataset.konum !== belirsizKonum ? btn.dataset.konum + " · " : "";
+    const etiket = `${konum}${window.I18n.t("query.placeholder_ada")} ${btn.dataset.ada} / ${window.I18n.t("query.placeholder_parsel")} ${btn.dataset.parsel}`;
+    basvurAc(Number(btn.dataset.basvur), etiket);
   });
 
   $("basvur-close").addEventListener("click", basvurKapat);
@@ -121,7 +125,7 @@
       $("basvur-form").classList.add("hidden");
       $("basvur-done").classList.remove("hidden");
     } catch (err) {
-      alertBox.textContent = err.message || "Başvuru gönderilemedi.";
+      alertBox.textContent = err.message || window.I18n.t("kiralik.apply_failed");
       alertBox.classList.remove("hidden");
     } finally {
       btn.disabled = false;
@@ -136,18 +140,18 @@
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const liste = await r.json();
       if (!Array.isArray(liste) || liste.length === 0) {
-        $("ozet").textContent = "Şu an yayınlanmış ilan yok.";
+        $("ozet").textContent = window.I18n.t("kiralik.no_listings");
         $("bos").classList.remove("hidden");
         return;
       }
-      $("ozet").textContent = `${liste.length} kiralık tarla ilanı`;
+      $("ozet").textContent = window.I18n.t("kiralik.listing_count", { count: liste.length });
       const frag = document.createDocumentFragment();
       liste.forEach((t) => frag.appendChild(kart(t)));
       grid.appendChild(frag);
     } catch (err) {
       $("ozet").textContent = "";
       const h = $("hata");
-      h.textContent = "İlanlar yüklenemedi: " + (err.message || "bilinmeyen hata");
+      h.textContent = `${window.I18n.t("kiralik.list_load_failed")}: ${err.message || window.I18n.t("kiralik.unknown_error")}`;
       h.classList.remove("hidden");
     }
   }

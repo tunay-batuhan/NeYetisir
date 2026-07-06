@@ -55,7 +55,7 @@
       $("done-card").classList.remove("hidden");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
-      showAlert(err.message || "Başvuru gönderilemedi.");
+      showAlert(err.message || window.I18n.t("kiralama.submit_failed"));
     } finally {
       btn.disabled = false;
     }

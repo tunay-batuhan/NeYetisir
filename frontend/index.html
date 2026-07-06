@@ -19,6 +19,7 @@
     };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://unpkg.com/i18next@23/i18next.min.js"></script>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body class="h-screen overflow-hidden bg-slate-100 text-slate-800">
@@ -55,7 +56,7 @@
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 9.5 12 3l9 6.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/>
             </svg>
-            Ana Sayfa
+            <span data-i18n="nav.home">Ana Sayfa</span>
           </a>
           <a href="/kiralik.html"
              class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium
@@ -65,7 +66,7 @@
               <path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/>
               <path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/>
             </svg>
-            Tarla Kirala
+            <span data-i18n="nav.rent_field">Tarla Kirala</span>
           </a>
           <a href="/kiralama.html"
              class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium
@@ -75,7 +76,7 @@
               <path d="M2 22a8 8 0 0 1 8-8"/><circle cx="10" cy="8" r="5"/>
               <path d="M19 16v6"/><path d="M16 19h6"/>
             </svg>
-            Tarlanı Kiraya Ver
+            <span data-i18n="nav.list_field">Tarlanı Kiraya Ver</span>
           </a>
           <a href="/ciftcimiz-ol.html"
              class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium
@@ -85,7 +86,7 @@
               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
               <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
-            Çiftçimiz Ol
+            <span data-i18n="nav.become_farmer">Çiftçimiz Ol</span>
           </a>
           <a href="/tarlama-yardim.html"
              class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium
@@ -96,7 +97,7 @@
               <path d="m7 18 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/>
               <path d="m2 13 6 6"/>
             </svg>
-            Tarlama Yardım Al
+            <span data-i18n="nav.field_help">Tarlama Yardım Al</span>
           </a>
         </nav>
       </div>
@@ -111,7 +112,7 @@
             <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
             <polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
           </svg>
-          Giriş Yap
+          <span data-i18n="auth.login">Giriş Yap</span>
         </button>
         <button id="btn-kayit"
                 class="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-brand
@@ -121,7 +122,7 @@
             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
             <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
           </svg>
-          Kayıt Ol
+          <span data-i18n="auth.register">Kayıt Ol</span>
         </button>
 
         <!-- Giriş yapılınca: kullanıcı rozeti (ad + profil + çıkış). Başlangıçta gizli. -->
@@ -131,7 +132,7 @@
             <span id="user-profil"
                   class="text-[11px] font-medium text-brand-dark bg-brand-soft rounded px-1.5 py-0.5"></span>
           </div>
-          <button id="btn-cikis" title="Çıkış yap"
+          <button id="btn-cikis" data-i18n-title="auth.logout_title" title="Çıkış yap"
                   class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300
                          px-2.5 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -139,17 +140,17 @@
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
               <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
-            <span class="hidden sm:inline">Çıkış</span>
+            <span class="hidden sm:inline" data-i18n="auth.logout">Çıkış</span>
           </button>
         </div>
 
         <div class="flex items-center gap-1 pl-1">
           <button id="lang-tr" data-lang="tr"
                   class="h-8 w-8 grid place-items-center rounded-lg text-lg ring-2 ring-brand bg-white"
-                  title="Türkçe">🇹🇷</button>
+                  data-i18n-title="lang.tr_title" title="Türkçe">🇹🇷</button>
           <button id="lang-en" data-lang="en"
                   class="h-8 w-8 grid place-items-center rounded-lg text-lg ring-1 ring-transparent hover:bg-slate-100"
-                  title="English">🇬🇧</button>
+                  data-i18n-title="lang.en_title" title="English">🇬🇧</button>
         </div>
       </div>
     </div>
@@ -167,15 +168,16 @@
                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
           </svg>
-          Sorgula
+          <span data-i18n="query.tab_query">Sorgula</span>
         </button>
-        <button id="tab-sec" class="flex items-center justify-center gap-1.5 rounded-lg py-1.5
-                                     text-slate-500 hover:text-slate-700">
+        <button id="tab-sec" type="button" disabled data-i18n-title="query.tab_select_title" title="Yakında"
+                class="flex items-center justify-center gap-1.5 rounded-lg py-1.5
+                       text-slate-300 cursor-not-allowed">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>
           </svg>
-          Seç
+          <span data-i18n="query.tab_select">Seç</span>
         </button>
       </div>
 
@@ -184,7 +186,7 @@
           <select id="il" name="il"
                   class="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50
                          px-3 py-2.5 text-sm text-slate-700 focus:bg-white focus:ring-2 focus:ring-brand outline-none">
-            <option value="">İl</option>
+            <option value="" data-i18n="query.placeholder_il">İl</option>
           </select>
           <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"
                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
@@ -195,7 +197,7 @@
                   class="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50
                          px-3 py-2.5 text-sm text-slate-700 focus:bg-white focus:ring-2 focus:ring-brand outline-none
                          disabled:opacity-60">
-            <option value="">İlçe</option>
+            <option value="" data-i18n="query.placeholder_ilce">İlçe</option>
           </select>
           <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"
                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
@@ -206,16 +208,16 @@
                   class="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50
                          px-3 py-2.5 text-sm text-slate-700 focus:bg-white focus:ring-2 focus:ring-brand outline-none
                          disabled:opacity-60">
-            <option value="">Mahalle</option>
+            <option value="" data-i18n="query.placeholder_mahalle">Mahalle</option>
           </select>
           <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"
                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
         </div>
 
-        <input id="ada" name="ada" type="text" inputmode="numeric" placeholder="Ada" required
+        <input id="ada" name="ada" type="text" inputmode="numeric" data-i18n-placeholder="query.placeholder_ada" placeholder="Ada" required
                class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm
                       focus:ring-2 focus:ring-brand outline-none" />
-        <input id="parsel" name="parsel" type="text" inputmode="numeric" placeholder="Parsel" required
+        <input id="parsel" name="parsel" type="text" inputmode="numeric" data-i18n-placeholder="query.placeholder_parsel" placeholder="Parsel" required
                class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm
                       focus:ring-2 focus:ring-brand outline-none" />
 
@@ -230,19 +232,15 @@
                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
           </svg>
-          <span id="submit-label">ARA</span>
+          <span id="submit-label" data-i18n="query.submit">ARA</span>
         </button>
       </form>
-
-      <div id="tab-sec-info" class="hidden text-xs text-slate-500 bg-slate-50 border rounded-lg px-3 py-2">
-        Haritadan tıklayarak parsel seçimi yakında.
-      </div>
 
       <div id="alert" role="alert" class="hidden text-sm rounded-lg border px-3 py-2"></div>
     </section>
 
     <!-- Collapse handle -->
-    <button id="panel-toggle" title="Paneli aç/kapat"
+    <button id="panel-toggle" data-i18n-title="query.panel_toggle_title" title="Paneli aç/kapat"
             class="self-center -ml-px grid place-items-center h-12 w-6 rounded-r-lg
                    bg-brand text-white shadow-md hover:bg-brand-dark transition">
       <svg id="panel-toggle-icon" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -251,7 +249,7 @@
   </div>
 
   <!-- Kapatılan keşif paneline geri dönüş (yalnız panel kapalıyken görünür) -->
-  <button id="results-reopen" title="Tarla analizini göster"
+  <button id="results-reopen" data-i18n-title="results.reopen_title" title="Tarla analizini göster"
           class="hidden fixed right-4 top-24 z-20 inline-flex items-center gap-2 rounded-full
                  bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-lg
                  transition hover:bg-brand-dark">
@@ -259,7 +257,7 @@
          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
     </svg>
-    Tarla Analizi
+    <span data-i18n="results.reopen_label">Tarla Analizi</span>
   </button>
 
   <!-- Sağ keşif paneli (haritaya bağlı veri: Özet / Hava / Toprak) -->
@@ -268,8 +266,8 @@
                 transition-transform duration-300 bg-slate-50/95 backdrop-blur border-l border-slate-200
                 shadow-2xl flex flex-col">
     <div class="flex items-center justify-between px-4 py-3 border-b bg-white/80">
-      <h2 class="font-semibold text-brand-deep">Tarla Analizi</h2>
-      <button id="results-close" title="Kapat"
+      <h2 class="font-semibold text-brand-deep" data-i18n="results.panel_title">Tarla Analizi</h2>
+      <button id="results-close" data-i18n-title="results.close_title" title="Kapat"
               class="h-8 w-8 grid place-items-center rounded-lg hover:bg-slate-100 text-slate-500">
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -281,11 +279,11 @@
       <div class="grid grid-cols-3 gap-1 p-1 rounded-xl bg-slate-100 text-sm font-medium">
         <button id="kt-ozet"
                 class="flex items-center justify-center gap-1.5 rounded-lg py-1.5 transition bg-white text-brand-deep shadow-sm">
-          Özet
+          <span data-i18n="results.tab_summary">Özet</span>
         </button>
         <button id="kt-hava" disabled
                 class="flex items-center justify-center gap-1.5 rounded-lg py-1.5 transition text-slate-500 hover:text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed">
-          Hava
+          <span data-i18n="results.tab_weather">Hava</span>
           <svg id="kt-hava-spin" class="hidden animate-spin h-3.5 w-3.5 text-brand" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/>
             <path fill="currentColor" class="opacity-75" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
@@ -295,7 +293,7 @@
         </button>
         <button id="kt-toprak" disabled
                 class="flex items-center justify-center gap-1.5 rounded-lg py-1.5 transition text-slate-500 hover:text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed">
-          Toprak
+          <span data-i18n="results.tab_soil">Toprak</span>
           <svg id="kt-toprak-spin" class="hidden animate-spin h-3.5 w-3.5 text-brand" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/>
             <path fill="currentColor" class="opacity-75" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
@@ -312,22 +310,22 @@
       <div id="kp-ozet" class="space-y-3">
         <section id="result" class="hidden bg-white rounded-xl border shadow-sm p-4 space-y-4">
           <div class="flex flex-wrap items-baseline gap-x-6 gap-y-1">
-            <h2 class="font-semibold text-slate-700">Sonuç</h2>
+            <h2 class="font-semibold text-slate-700" data-i18n="results.summary.title">Sonuç</h2>
             <span id="r-konum" class="text-sm text-slate-500"></span>
           </div>
 
           <dl class="grid grid-cols-2 gap-3 text-sm">
-            <div><dt class="text-slate-500">Yüzölçüm</dt><dd id="r-yuz" class="font-medium">—</dd></div>
-            <div><dt class="text-slate-500">Nitelik</dt><dd id="r-nitelik" class="font-medium">—</dd></div>
-            <div><dt class="text-slate-500">Mevki</dt><dd id="r-mevki" class="font-medium">—</dd></div>
-            <div><dt class="text-slate-500">Köşe sayısı</dt><dd id="r-kose" class="font-medium">—</dd></div>
+            <div><dt class="text-slate-500" data-i18n="results.summary.area">Yüzölçüm</dt><dd id="r-yuz" class="font-medium">—</dd></div>
+            <div><dt class="text-slate-500" data-i18n="results.summary.quality">Nitelik</dt><dd id="r-nitelik" class="font-medium">—</dd></div>
+            <div><dt class="text-slate-500" data-i18n="results.summary.location">Mevki</dt><dd id="r-mevki" class="font-medium">—</dd></div>
+            <div><dt class="text-slate-500" data-i18n="results.summary.corner_count">Köşe sayısı</dt><dd id="r-kose" class="font-medium">—</dd></div>
           </dl>
 
           <div class="flex flex-wrap gap-2">
-            <button id="copy-btn" class="text-sm px-3 py-1.5 border rounded-lg hover:bg-slate-50">
+            <button id="copy-btn" class="text-sm px-3 py-1.5 border rounded-lg hover:bg-slate-50" data-i18n="results.summary.copy_coords">
               Tüm koordinatları kopyala
             </button>
-            <button id="csv-btn" class="text-sm px-3 py-1.5 border rounded-lg hover:bg-slate-50">
+            <button id="csv-btn" class="text-sm px-3 py-1.5 border rounded-lg hover:bg-slate-50" data-i18n="results.summary.download_csv">
               CSV indir
             </button>
           </div>
@@ -337,8 +335,8 @@
               <thead class="bg-slate-100 sticky top-0">
                 <tr>
                   <th class="text-left px-2 py-1.5 w-12">#</th>
-                  <th class="text-left px-2 py-1.5">Enlem (lat)</th>
-                  <th class="text-left px-2 py-1.5">Boylam (lon)</th>
+                  <th class="text-left px-2 py-1.5" data-i18n="results.summary.table_lat">Enlem (lat)</th>
+                  <th class="text-left px-2 py-1.5" data-i18n="results.summary.table_lon">Boylam (lon)</th>
                   <th class="px-2 py-1.5 w-16"></th>
                 </tr>
               </thead>
@@ -349,13 +347,13 @@
           <div class="pt-3 border-t">
             <button id="analiz-btn"
                     class="w-full bg-brand hover:bg-brand-dark disabled:bg-slate-400
-                           text-white font-medium px-4 py-2.5 rounded-lg">
+                           text-white font-medium px-4 py-2.5 rounded-lg" data-i18n="results.summary.fetch_weather_soil">
               Hava ve Toprak Bilgilerini Getir
             </button>
           </div>
         </section>
 
-        <p class="text-[11px] leading-relaxed text-slate-400 px-1">
+        <p class="text-[11px] leading-relaxed text-slate-400 px-1" data-i18n="results.summary.disclaimer">
           Bu uygulama yalnızca demo amaçlıdır. Veriler Tapu ve Kadastro Genel Müdürlüğü'nün halka açık
           kaynaklarından alınmıştır ve resmi/ticari amaçla kullanılamaz. Koordinat hassasiyeti sınırlıdır;
           sahada aplikasyon için lisanslı harita mühendisine başvurunuz.
@@ -366,7 +364,7 @@
       <div id="kp-hava" class="hidden space-y-3">
         <section id="hava-card" class="hidden bg-white rounded-xl border shadow-sm p-4 space-y-3">
           <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-slate-700">Hava Durumu</h2>
+            <h2 class="font-semibold text-slate-700" data-i18n="results.weather.title">Hava Durumu</h2>
             <span id="hava-status" class="text-xs text-slate-500"></span>
           </div>
           <div id="hava-loading" class="flex items-center gap-2 text-sm text-slate-600">
@@ -374,23 +372,23 @@
               <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/>
               <path fill="currentColor" class="opacity-75" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
             </svg>
-            <span>7 günlük tahmin ve 30 yıllık iklim normali alınıyor…</span>
+            <span data-i18n="results.weather.loading">7 günlük tahmin ve 30 yıllık iklim normali alınıyor…</span>
           </div>
           <div id="hava-error" class="hidden text-sm rounded border px-3 py-2 error"></div>
           <div id="hava-content" class="hidden space-y-4">
             <div>
-              <h3 class="text-sm font-medium text-slate-600 mb-2">Önümüzdeki 7 gün</h3>
+              <h3 class="text-sm font-medium text-slate-600 mb-2" data-i18n="results.weather.next7">Önümüzdeki 7 gün</h3>
               <div id="hava-tahmin" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
             </div>
             <div>
-              <h3 class="text-sm font-medium text-slate-600 mb-2">İklim normali (1991-2020 ortalaması)</h3>
+              <h3 class="text-sm font-medium text-slate-600 mb-2" data-i18n="results.weather.climate_normal">İklim normali (1991-2020 ortalaması)</h3>
               <div class="overflow-auto border rounded-lg">
                 <table class="w-full text-sm">
                   <thead class="bg-slate-100">
                     <tr>
-                      <th class="text-left px-2 py-1.5">Ay</th>
-                      <th class="text-left px-2 py-1.5">Ort. sıcaklık (°C)</th>
-                      <th class="text-left px-2 py-1.5">Aylık yağış (mm)</th>
+                      <th class="text-left px-2 py-1.5" data-i18n="results.weather.table_month">Ay</th>
+                      <th class="text-left px-2 py-1.5" data-i18n="results.weather.table_avg_temp">Ort. sıcaklık (°C)</th>
+                      <th class="text-left px-2 py-1.5" data-i18n="results.weather.table_monthly_rain">Aylık yağış (mm)</th>
                     </tr>
                   </thead>
                   <tbody id="hava-normal-body"></tbody>
@@ -401,7 +399,7 @@
               <button id="hava-to-toprak" disabled
                       class="w-full bg-brand-soft hover:bg-brand/20 disabled:opacity-50 disabled:cursor-not-allowed
                              text-brand-deep font-medium px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 transition">
-                <span id="hava-to-toprak-label">Toprak ve Arazi Verisine Geç</span>
+                <span id="hava-to-toprak-label" data-i18n="results.weather.to_soil">Toprak ve Arazi Verisine Geç</span>
                 <svg id="hava-to-toprak-spin" class="hidden animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
                   <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/>
                   <path fill="currentColor" class="opacity-75" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
@@ -418,7 +416,7 @@
       <div id="kp-toprak" class="hidden space-y-3">
         <section id="toprak-card" class="hidden bg-white rounded-xl border shadow-sm p-4 space-y-3">
           <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-slate-700">Toprak ve Topografya</h2>
+            <h2 class="font-semibold text-slate-700" data-i18n="results.soil.title">Toprak ve Topografya</h2>
             <span id="toprak-status" class="text-xs text-slate-500"></span>
           </div>
           <div id="toprak-loading" class="flex items-center gap-2 text-sm text-slate-600">
@@ -426,22 +424,22 @@
               <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/>
               <path fill="currentColor" class="opacity-75" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
             </svg>
-            <span>SoilGrids ve yükseklik modelinden toprak/eğim verisi alınıyor…</span>
+            <span data-i18n="results.soil.loading">SoilGrids ve yükseklik modelinden toprak/eğim verisi alınıyor…</span>
           </div>
           <div id="toprak-error" class="hidden text-sm rounded border px-3 py-2 error"></div>
           <div id="toprak-content" class="hidden space-y-4">
             <div class="grid grid-cols-2 gap-3">
               <div class="border rounded-lg p-3">
-                <div class="text-xs text-slate-500">Rakım</div>
+                <div class="text-xs text-slate-500" data-i18n="results.soil.elevation">Rakım</div>
                 <div id="t-rakim" class="text-lg font-semibold">—</div>
               </div>
               <div class="border rounded-lg p-3">
-                <div class="text-xs text-slate-500">Eğim</div>
+                <div class="text-xs text-slate-500" data-i18n="results.soil.slope">Eğim</div>
                 <div id="t-egim" class="text-lg font-semibold">—</div>
               </div>
               <div class="border rounded-lg p-3 flex items-start gap-3 col-span-2">
                 <div class="flex-1">
-                  <div class="text-xs text-slate-500">Bakı</div>
+                  <div class="text-xs text-slate-500" data-i18n="results.soil.aspect">Bakı</div>
                   <div id="t-baki" class="text-lg font-semibold">—</div>
                 </div>
                 <svg id="t-baki-ok" class="h-10 w-10 text-brand hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -454,13 +452,13 @@
               <table class="w-full text-sm">
                 <thead class="bg-slate-100">
                   <tr>
-                    <th class="text-left px-2 py-1.5">Derinlik</th>
-                    <th class="text-left px-2 py-1.5">pH</th>
-                    <th class="text-left px-2 py-1.5">Kum %</th>
-                    <th class="text-left px-2 py-1.5">Kil %</th>
-                    <th class="text-left px-2 py-1.5">Silt %</th>
-                    <th class="text-left px-2 py-1.5">Org. karbon %</th>
-                    <th class="text-left px-2 py-1.5">Yoğunluk g/cm³</th>
+                    <th class="text-left px-2 py-1.5" data-i18n="results.soil.table_depth">Derinlik</th>
+                    <th class="text-left px-2 py-1.5" data-i18n="results.soil.table_ph">pH</th>
+                    <th class="text-left px-2 py-1.5" data-i18n="results.soil.table_sand">Kum %</th>
+                    <th class="text-left px-2 py-1.5" data-i18n="results.soil.table_clay">Kil %</th>
+                    <th class="text-left px-2 py-1.5" data-i18n="results.soil.table_silt">Silt %</th>
+                    <th class="text-left px-2 py-1.5" data-i18n="results.soil.table_organic_carbon">Org. karbon %</th>
+                    <th class="text-left px-2 py-1.5" data-i18n="results.soil.table_density">Yoğunluk g/cm³</th>
                   </tr>
                 </thead>
                 <tbody id="toprak-katman-body"></tbody>
@@ -482,9 +480,9 @@
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>
           <path d="M9 13h6M9 17h6M9 9h1"/>
         </svg>
-        Tarlamı Analiz Et (AI Raporu)
+        <span data-i18n="results.footer.open_report">Tarlamı Analiz Et (AI Raporu)</span>
       </button>
-      <p id="open-rapor-hint" class="text-[11px] text-slate-400 mt-1.5 text-center">
+      <p id="open-rapor-hint" class="text-[11px] text-slate-400 mt-1.5 text-center" data-i18n="results.footer.open_report_hint">
         Hava ve toprak verisi geldikten sonra aktifleşir.
       </p>
     </div>
@@ -504,22 +502,22 @@
                          text-slate-600 hover:bg-slate-50 transition shrink-0">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            Keşfe dön
+            <span data-i18n="report.back">Keşfe dön</span>
           </button>
-          <h2 class="font-bold text-brand-deep text-lg truncate">AI Tarla Raporu</h2>
+          <h2 class="font-bold text-brand-deep text-lg truncate" data-i18n="report.title">AI Tarla Raporu</h2>
         </div>
         <div class="flex items-center gap-3 shrink-0">
           <button id="pdf-indir" disabled
                   class="inline-flex items-center gap-1.5 rounded-lg border border-brand
                          px-3 py-1.5 text-sm font-medium text-brand-deep hover:bg-brand-soft
                          disabled:opacity-40 disabled:cursor-not-allowed transition"
-                  title="Raporu PDF olarak indir">
+                  data-i18n-title="report.pdf_download_title" title="Raporu PDF olarak indir">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
-            PDF İndir
+            <span data-i18n="report.pdf_download">PDF İndir</span>
           </button>
           <span id="rapor-status" class="text-xs text-slate-500 shrink-0"></span>
         </div>
@@ -530,7 +528,7 @@
         <div class="inline-grid grid-cols-2 gap-1 p-1 rounded-xl bg-slate-100 text-sm font-medium">
           <button id="rt-rapor"
                   class="flex items-center justify-center gap-1.5 rounded-lg px-6 py-1.5 transition bg-white text-brand-deep shadow-sm">
-            Rapor
+            <span data-i18n="report.tab_report">Rapor</span>
             <svg id="rt-rapor-spin" class="hidden animate-spin h-3.5 w-3.5 text-amber-600" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/>
               <path fill="currentColor" class="opacity-75" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
@@ -540,7 +538,7 @@
           </button>
           <button id="rt-sohbet" disabled
                   class="flex items-center justify-center gap-1.5 rounded-lg px-6 py-1.5 transition text-slate-500 hover:text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed">
-            Sohbet
+            <span data-i18n="report.tab_chat">Sohbet</span>
           </button>
         </div>
       </div>
@@ -556,14 +554,14 @@
                 <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/>
                 <path fill="currentColor" class="opacity-75" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
               </svg>
-              <span id="rapor-btn-label">Tarlamı Analiz Et (AI Raporu)</span>
+              <span id="rapor-btn-label" data-i18n="report.generate">Tarlamı Analiz Et (AI Raporu)</span>
             </button>
             <div class="flex items-center gap-2">
-              <label for="model-select" class="text-sm text-slate-600">Model</label>
+              <label for="model-select" class="text-sm text-slate-600" data-i18n="report.model_label">Model</label>
               <select id="model-select"
                       class="border rounded-lg px-2 py-1.5 text-sm bg-white"
-                      title="Rapor ve sohbet için kullanılacak OpenRouter modeli">
-                <option value="">— Yükleniyor —</option>
+                      data-i18n-title="report.model_select_title" title="Rapor ve sohbet için kullanılacak OpenRouter modeli">
+                <option value="" data-i18n="report.model_loading">— Yükleniyor —</option>
               </select>
             </div>
           </div>
@@ -581,14 +579,14 @@
                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
-                Rapor üzerine soru sor (Sohbete geç)
+                <span data-i18n="report.ask_question">Rapor üzerine soru sor (Sohbete geç)</span>
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
               </button>
             </div>
             <!-- Rapor sonrası yönlendirme: tarlayı kiraya ver / ekim yardımı al -->
             <div id="rapor-aksiyon-wrap" class="hidden pt-3 border-t space-y-2">
-              <p class="text-xs text-slate-500">Bu tarla için sonraki adım:</p>
+              <p class="text-xs text-slate-500" data-i18n="report.next_step_label">Bu tarla için sonraki adım:</p>
               <button id="rapor-kiraya-ver"
                       class="w-full bg-brand-soft hover:bg-brand/20 text-brand-deep font-medium
                              px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 transition">
@@ -597,7 +595,7 @@
                   <path d="M2 22a8 8 0 0 1 8-8"/><circle cx="10" cy="8" r="5"/>
                   <path d="M19 16v6"/><path d="M16 19h6"/>
                 </svg>
-                Tarlamı kiraya vermek istiyorum
+                <span data-i18n="report.rent_out_cta">Tarlamı kiraya vermek istiyorum</span>
               </button>
               <button id="rapor-ekim-yardim"
                       class="w-full bg-brand-soft hover:bg-brand/20 text-brand-deep font-medium
@@ -608,7 +606,7 @@
                   <path d="m7 18 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/>
                   <path d="m2 13 6 6"/>
                 </svg>
-                Tarlamı ekmeme yardımcı olun
+                <span data-i18n="report.planting_help_cta">Tarlamı ekmeme yardımcı olun</span>
               </button>
             </div>
           </section>
@@ -617,22 +615,22 @@
         <!-- Sohbet sekmesi -->
         <div id="rp-sohbet" class="hidden h-full flex flex-col px-5 py-4 gap-3">
           <div class="flex items-center justify-between shrink-0">
-            <p class="text-sm text-slate-500">
+            <p class="text-sm text-slate-500" data-i18n="report.chat.hint">
               Rapor ve toplanan veriler sohbet hafızasında; takip sorularını yapay zekaya iletebilirsin.
             </p>
             <span id="sohbet-status" class="text-xs text-slate-500 shrink-0"></span>
           </div>
           <div id="sohbet-mesajlar" class="flex-1 space-y-3 overflow-auto border rounded-lg p-3 bg-slate-50">
-            <div class="text-xs text-slate-500 italic">
+            <div class="text-xs text-slate-500 italic" data-i18n="report.chat.example">
               Rapor ve veriler sohbet hafızasında. Soruna örnek: "Damla sulama yatırımı bu parselde anlamlı olur mu?"
             </div>
           </div>
           <form id="sohbet-form" class="flex gap-2 shrink-0">
-            <input id="sohbet-input" type="text" placeholder="Sorunuzu yazın…"
+            <input id="sohbet-input" type="text" data-i18n-placeholder="report.chat.input_placeholder" placeholder="Sorunuzu yazın…"
                    class="flex-1 border rounded-lg px-3 py-2" autocomplete="off" />
             <button id="sohbet-gonder" type="submit"
                     class="bg-brand hover:bg-brand-dark disabled:bg-slate-400
-                           text-white font-medium px-4 py-2 rounded-lg">
+                           text-white font-medium px-4 py-2 rounded-lg" data-i18n="report.chat.send">
               Gönder
             </button>
           </form>
@@ -646,7 +644,7 @@
   <!-- Hoş geldin popup (sayfa açılışında) -->
   <div id="hosgeldin-modal" class="fixed inset-0 z-[60] hidden">
     <div id="hosgeldin-backdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4 overflow-y-auto">
+    <div id="hosgeldin-overlay" class="absolute inset-0 flex items-center justify-center p-4 overflow-y-auto">
       <div id="hosgeldin-card"
            class="relative my-auto w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden
                   scale-95 opacity-0 transition-all duration-200">
@@ -687,11 +685,11 @@
             <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
               <path d="m12 2 2.9 6 6.6.5-5 4.3 1.5 6.4L12 16.3 6 19.2l1.5-6.4-5-4.3 6.6-.5z"/>
             </svg>
-            Yeni Fırsat
+            <span data-i18n="welcome.badge">Yeni Fırsat</span>
           </div>
 
-          <h2 class="mt-3 text-2xl font-bold text-brand-deep">Çiftçimiz olmak ister misiniz?</h2>
-          <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+          <h2 class="mt-3 text-2xl font-bold text-brand-deep" data-i18n="welcome.title">Çiftçimiz olmak ister misiniz?</h2>
+          <p class="mt-2 text-sm text-slate-500 leading-relaxed" data-i18n="welcome.desc">
             Binlerce ekim yapılacak tarla sizi bekliyor. Hemen keşfedin ve kazanmaya başlayın!
           </p>
 
@@ -706,7 +704,7 @@
                   <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/>
                 </svg>
               </span>
-              <span class="text-xs font-medium text-slate-600 leading-tight">Geniş Tarla<br>Seçenekleri</span>
+              <span class="text-xs font-medium text-slate-600 leading-tight" data-i18n-html="welcome.feature_wide">Geniş Tarla<br>Seçenekleri</span>
             </div>
             <div class="flex flex-col items-center gap-1.5">
               <span class="h-12 w-12 grid place-items-center rounded-xl bg-brand-soft text-brand-deep">
@@ -715,7 +713,7 @@
                   <circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/>
                 </svg>
               </span>
-              <span class="text-xs font-medium text-slate-600 leading-tight">Karlı<br>Fırsatlar</span>
+              <span class="text-xs font-medium text-slate-600 leading-tight" data-i18n-html="welcome.feature_profit">Karlı<br>Fırsatlar</span>
             </div>
             <div class="flex flex-col items-center gap-1.5">
               <span class="h-12 w-12 grid place-items-center rounded-xl bg-brand-soft text-brand-deep">
@@ -724,7 +722,7 @@
                   <path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>
                 </svg>
               </span>
-              <span class="text-xs font-medium text-slate-600 leading-tight">Detaylı<br>Analiz</span>
+              <span class="text-xs font-medium text-slate-600 leading-tight" data-i18n-html="welcome.feature_analysis">Detaylı<br>Analiz</span>
             </div>
           </div>
 
@@ -738,7 +736,7 @@
               <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/>
               <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/>
             </svg>
-            Tarlaları İncele
+            <span data-i18n="welcome.cta_explore">Tarlaları İncele</span>
             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </button>
@@ -752,7 +750,7 @@
               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
               <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
-            Başvuru Yap
+            <span data-i18n="welcome.cta_apply">Başvuru Yap</span>
             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </button>
@@ -767,13 +765,14 @@
               <path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/>
               <path d="M9 9h.01"/><path d="M9 12h.01"/><path d="M9 15h.01"/><path d="M9 18h.01"/>
             </svg>
-            Tarlanızı kiraya mı vermek istiyorsunuz?
+            <span data-i18n="welcome.cta_list">Tarlanızı kiraya mı vermek istiyorsunuz?</span>
           </button>
         </div>
       </div>
     </div>
   </div>
 
+  <script src="/i18n.js"></script>
   <script src="/auth.js"></script>
   <script src="/charts.js"></script>
   <script src="/app.js"></script>

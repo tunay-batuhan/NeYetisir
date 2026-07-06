@@ -12,6 +12,7 @@
       } } }
     };
   </script>
+  <script src="https://unpkg.com/i18next@23/i18next.min.js"></script>
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-800">
 
@@ -80,8 +81,12 @@
         <input id="e-ad_soyad" type="text" placeholder="Ad Soyad *" maxlength="80" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
         <input id="e-telefon" type="tel" placeholder="Telefon *" maxlength="20" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
         <input id="e-email" type="email" placeholder="E-posta *" maxlength="120" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
-        <input id="e-il" type="text" placeholder="İl" maxlength="80" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
-        <input id="e-ilce" type="text" placeholder="İlçe" maxlength="80" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
+        <select id="e-il" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand">
+          <option value="">— Yükleniyor —</option>
+        </select>
+        <select id="e-ilce" disabled class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand disabled:opacity-60">
+          <option value="">—</option>
+        </select>
         <input id="e-mahalle" type="text" placeholder="Mahalle/Köy" maxlength="80" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
         <input id="e-ada" type="text" placeholder="Ada *" maxlength="32" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
         <input id="e-parsel" type="text" placeholder="Parsel *" maxlength="32" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand" />
@@ -219,6 +224,8 @@
     </div><!-- /content-ekim -->
   </main>
 
+  <script src="/i18n.js"></script>
+  <script src="/il-ilce.js"></script>
   <script src="/admin.js"></script>
 </body>
 </html>

@@ -7,6 +7,21 @@
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
     );
 
+  // Kiraya-ver / ekim-yardım formlarındaki ortak "tarla anketi" alanlarını
+  // tek bir okunabilir satıra (ör. "Ağaç: Evet · Taş: Hayır · ...") çevirir.
+  function tarlaSurveyOzeti(t) {
+    const eh = (v) => (v === "evet" ? "Evet" : v === "hayır" ? "Hayır" : null);
+    return [
+      t.agac_var ? `Ağaç: ${eh(t.agac_var)}` : null,
+      t.tas_var ? `Taş: ${eh(t.tas_var)}` : null,
+      t.son_urun ? `Son ürün: ${t.son_urun}` : null,
+      t.kimyasal_gubre_var
+        ? `Kimyasal/Gübre: ${eh(t.kimyasal_gubre_var)}${t.kimyasal_gubre_aciklama ? ` (${t.kimyasal_gubre_aciklama})` : ""}`
+        : null,
+      t.su_kaynagina_uzaklik_km != null ? `Su kaynağı: ${t.su_kaynagina_uzaklik_km} km` : null,
+    ].filter(Boolean).join(" · ");
+  }
+
   let aktifFiltre = ""; // "" = hepsi
   let aktifFiltreCiftci = ""; // çiftçi sekmesi filtresi
   let ciftciYuklendi = false; // çiftçi tablosu lazy-load edildi mi
@@ -142,6 +157,7 @@
       t.alan_m2 != null ? `${Number(t.alan_m2).toLocaleString("tr-TR")} m²` : null,
       t.egim, t.su_durumu,
     ].filter(Boolean).join(" · ") || "—";
+    const survey = tarlaSurveyOzeti(t);
     const tr = document.createElement("tr");
     tr.className = "border-b border-slate-50 align-top";
     tr.innerHTML = `
@@ -151,7 +167,10 @@
         <div class="font-medium text-slate-700">Ada ${esc(t.ada)} / Parsel ${esc(t.parsel)}</div>
         ${t.aciklama ? `<div class="mt-0.5 max-w-xs truncate text-xs text-slate-400" title="${esc(t.aciklama)}">${esc(t.aciklama)}</div>` : ""}
       </td>
-      <td class="px-4 py-3 text-slate-600">${esc(ozellik)}</td>
+      <td class="px-4 py-3 text-slate-600">
+        <div>${esc(ozellik)}</div>
+        ${survey ? `<div class="mt-0.5 max-w-xs truncate text-xs text-slate-400" title="${esc(survey)}">${esc(survey)}</div>` : ""}
+      </td>
       <td class="px-4 py-3">
         <div class="font-medium text-slate-700">${esc(t.ad_soyad)}</div>
         <div class="text-xs text-slate-500">${esc(t.telefon)}</div>
@@ -202,6 +221,7 @@
 
   // --- Yeni ilan ekleme ----------------------------------------------------
   $("ekle-toggle").addEventListener("click", () => $("ekle-form").classList.toggle("hidden"));
+  window.IlIlce.baglaSelectler("e-il", "e-ilce");
 
   const opt = (v) => { const t = (v || "").trim(); return t === "" ? null : t; };
 
@@ -215,7 +235,7 @@
       ad_soyad: $("e-ad_soyad").value.trim(),
       telefon: $("e-telefon").value.trim(),
       email: $("e-email").value.trim(),
-      il: opt($("e-il").value), ilce: opt($("e-ilce").value), mahalle: opt($("e-mahalle").value),
+      il: window.IlIlce.seciliAd("e-il"), ilce: window.IlIlce.seciliAd("e-ilce"), mahalle: opt($("e-mahalle").value),
       ada: $("e-ada").value.trim(), parsel: $("e-parsel").value.trim(),
       alan_m2: alanStr === "" ? null : Number(alanStr),
       egim: opt($("e-egim").value), su_durumu: opt($("e-su_durumu").value),
@@ -230,6 +250,7 @@
         body: JSON.stringify(body),
       });
       $("ekle-form").reset();
+      window.IlIlce.baglaSelectler("e-il", "e-ilce");
       $("e-durum").value = "yayinda";
       alertBox.textContent = "İlan eklendi.";
       alertBox.className = "mt-3 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700";
@@ -473,7 +494,10 @@
         <div class="text-xs text-slate-500">${esc(t.telefon)}</div>
         <div class="text-xs text-slate-400">${esc(t.email)}</div>
       </td>
-      <td class="px-4 py-3"><div class="max-w-xs truncate text-slate-600" title="${esc(t.aciklama || "")}">${esc(t.aciklama || "—")}</div></td>
+      <td class="px-4 py-3">
+        <div class="max-w-xs truncate text-slate-600" title="${esc(t.aciklama || "")}">${esc(t.aciklama || "—")}</div>
+        ${tarlaSurveyOzeti(t) ? `<div class="mt-0.5 max-w-xs truncate text-xs text-slate-400" title="${esc(tarlaSurveyOzeti(t))}">${esc(tarlaSurveyOzeti(t))}</div>` : ""}
+      </td>
       <td class="px-4 py-3"><div class="flex flex-wrap justify-end gap-1.5">${aksiyonlarEkim(t)}</div></td>`;
     return tr;
   }

@@ -23,9 +23,13 @@
     attribution: "© OpenStreetMap",
   });
 
+  // Esri World_Imagery'nin gerçek çözünürlüğü kırsal/tarım arazilerinde belli bir
+  // seviyenin ötesine gitmiyor — daha yüksek zoom'da "Map data not yet available"
+  // gri kare dönüyor. maxZoom'u düşük tutunca kullanıcı o noktanın ötesine hiç
+  // yakınlaşamıyor.
   const satellite = L.tileLayer(
     "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    { maxZoom: 20, attribution: "Tiles © Esri" }
+    { maxZoom: 16, attribution: "Tiles © Esri" }
   ).addTo(map);
 
   L.control.layers({ "Uydu (Esri)": satellite, "Sokak (OSM)": osm }).addTo(map);
@@ -91,7 +95,7 @@
   function setLoading(on) {
     submitBtn.disabled = on;
     spinner.classList.toggle("hidden", !on);
-    submitLabel.textContent = on ? "Aranıyor…" : "ARA";
+    submitLabel.textContent = on ? window.I18n.t("query.submit_loading") : window.I18n.t("query.submit");
   }
 
   function fillSelect(sel, items, placeholder) {
@@ -224,7 +228,7 @@
     if (openRaporBtn.disabled) return;
     if (!window.Auth.user) {
       window.Auth.openModal("giris");
-      window.Auth.setAlert("AI raporu için giriş yapın.", "info");
+      window.Auth.setAlert(window.I18n.t("report.login_required"), "info");
       return;
     }
     setRaporTab("rapor");
@@ -243,20 +247,8 @@
     panelToggleIcon.innerHTML = panelCollapsed ? '<path d="m9 18 6-6-6-6"/>' : '<path d="m15 18-6-6 6-6"/>';
   });
 
-  // Sorgula / Seç sekmeleri (Seç şimdilik placeholder).
-  const tabSorgula = $("tab-sorgula");
-  const tabSec = $("tab-sec");
-  const tabSecInfo = $("tab-sec-info");
-  const tabActive = "bg-white text-brand-deep shadow-sm";
-  const tabIdle = "text-slate-500 hover:text-slate-700";
-  function setTab(secActive) {
-    tabSec.className = `flex items-center justify-center gap-1.5 rounded-lg py-1.5 ${secActive ? tabActive : tabIdle}`;
-    tabSorgula.className = `flex items-center justify-center gap-1.5 rounded-lg py-1.5 ${secActive ? tabIdle : tabActive}`;
-    tabSecInfo.classList.toggle("hidden", !secActive);
-    form.classList.toggle("hidden", secActive);
-  }
-  tabSorgula.addEventListener("click", () => setTab(false));
-  tabSec.addEventListener("click", () => setTab(true));
+  // "Seç" sekmesi (haritadan tıklayarak parsel seçimi) henüz çalışmıyor —
+  // index.html'de disabled, tıklanamıyor. "Sorgula" tek aktif mod.
 
   // Üst bar placeholder'ları (görsel; backend yok).
   const langTr = $("lang-tr");
@@ -282,48 +274,48 @@
     try {
       const iller = await fetchJson("/api/iller");
       cacheGeoms("il", iller);
-      fillSelect(ilSel, iller, "— İl seçin —");
+      fillSelect(ilSel, iller, window.I18n.t("query.select_il"));
     } catch (e) {
-      fillSelect(ilSel, [], "— İl yüklenemedi —");
-      setAlert(`İl listesi alınamadı: ${e.message}`);
+      fillSelect(ilSel, [], window.I18n.t("query.il_load_error"));
+      setAlert(`${window.I18n.t("query.il_fetch_failed")}: ${e.message}`);
     }
   }
 
   async function loadIlceler(ilId) {
-    fillSelect(ilceSel, [], "— Yükleniyor —");
+    fillSelect(ilceSel, [], window.I18n.t("query.loading"));
     ilceSel.disabled = true;
-    fillSelect(mahSel, [], "—");
+    fillSelect(mahSel, [], window.I18n.t("query.none_placeholder"));
     mahSel.disabled = true;
     if (!ilId) {
-      fillSelect(ilceSel, [], "—");
+      fillSelect(ilceSel, [], window.I18n.t("query.none_placeholder"));
       return;
     }
     try {
       const items = await fetchJson(`/api/ilceler?ilId=${encodeURIComponent(ilId)}`);
       cacheGeoms("ilce", items);
-      fillSelect(ilceSel, items, "— İlçe seçin —");
+      fillSelect(ilceSel, items, window.I18n.t("query.select_ilce"));
       ilceSel.disabled = false;
     } catch (e) {
-      fillSelect(ilceSel, [], "— Hata —");
-      setAlert(`İlçe listesi alınamadı: ${e.message}`);
+      fillSelect(ilceSel, [], window.I18n.t("query.error"));
+      setAlert(`${window.I18n.t("query.ilce_fetch_failed")}: ${e.message}`);
     }
   }
 
   async function loadMahalleler(ilceId) {
-    fillSelect(mahSel, [], "— Yükleniyor —");
+    fillSelect(mahSel, [], window.I18n.t("query.loading"));
     mahSel.disabled = true;
     if (!ilceId) {
-      fillSelect(mahSel, [], "—");
+      fillSelect(mahSel, [], window.I18n.t("query.none_placeholder"));
       return;
     }
     try {
       const items = await fetchJson(`/api/mahalleler?ilceId=${encodeURIComponent(ilceId)}`);
       cacheGeoms("mahalle", items);
-      fillSelect(mahSel, items, "— Mahalle seçin —");
+      fillSelect(mahSel, items, window.I18n.t("query.select_mahalle"));
       mahSel.disabled = false;
     } catch (e) {
-      fillSelect(mahSel, [], "— Hata —");
-      setAlert(`Mahalle listesi alınamadı: ${e.message}`);
+      fillSelect(mahSel, [], window.I18n.t("query.error"));
+      setAlert(`${window.I18n.t("query.mahalle_fetch_failed")}: ${e.message}`);
     }
   }
 
@@ -361,8 +353,8 @@
     const ada = adaInp.value.trim();
     const parsel = parselInp.value.trim();
 
-    if (!mahalleId) return setAlert("Önce il/ilçe/mahalle seçin.");
-    if (!ada || !parsel) return setAlert("Ada ve parsel zorunlu.");
+    if (!mahalleId) return setAlert(window.I18n.t("query.no_selection"));
+    if (!ada || !parsel) return setAlert(window.I18n.t("query.ada_parsel_required"));
 
     setLoading(true);
     try {
@@ -374,7 +366,7 @@
       clearLayers();
       resultPanel.classList.add("hidden");
       lastQuery = null;
-      setAlert(err.message || "Sorgu başarısız.");
+      setAlert(err.message || window.I18n.t("query.search_failed"));
     } finally {
       setLoading(false);
     }
@@ -402,12 +394,15 @@
     kosePointsLayer = L.layerGroup(markers).addTo(map);
 
     try {
-      map.fitBounds(parselLayer.getBounds(), { padding: [30, 30], maxZoom: 19 });
+      map.fitBounds(parselLayer.getBounds(), { padding: [30, 30], maxZoom: 16 });
     } catch (_) { /* boş geometry */ }
 
     const o = sonuc.ozellikler || {};
-    $("r-konum").textContent = [o.il, o.ilce, o.mahalle, o.ada && `Ada ${o.ada}`, o.parsel && `Parsel ${o.parsel}`]
-      .filter(Boolean).join(" / ");
+    $("r-konum").textContent = [
+      o.il, o.ilce, o.mahalle,
+      o.ada && `${window.I18n.t("query.placeholder_ada")} ${o.ada}`,
+      o.parsel && `${window.I18n.t("query.placeholder_parsel")} ${o.parsel}`,
+    ].filter(Boolean).join(" / ");
     $("r-yuz").textContent = o.yuzolcumu != null ? `${o.yuzolcumu.toLocaleString("tr-TR")} m²` : "—";
     $("r-nitelik").textContent = o.nitelik || "—";
     $("r-mevki").textContent = o.mevki || "—";
@@ -423,7 +418,7 @@
         <td class="px-2 py-1 font-mono">${k.lon.toFixed(6)}</td>
         <td class="px-2 py-1 text-right">
           <button data-i="${i}" class="copy-row text-xs px-2 py-0.5 border rounded hover:bg-slate-100">
-            Kopyala
+            ${window.I18n.t("results.summary.copy_row")}
           </button>
         </td>`;
       koordBody.appendChild(tr);
@@ -466,8 +461,8 @@
     const i = Number(btn.dataset.i);
     const k = lastSonuc.koordinatlar[i];
     navigator.clipboard.writeText(`${k.lat.toFixed(6)},${k.lon.toFixed(6)}`);
-    btn.textContent = "Kopyalandı";
-    setTimeout(() => (btn.textContent = "Kopyala"), 1200);
+    btn.textContent = window.I18n.t("results.summary.copied");
+    setTimeout(() => (btn.textContent = window.I18n.t("results.summary.copy_row")), 1200);
   });
 
   $("copy-btn").addEventListener("click", () => {
@@ -525,11 +520,25 @@
     havaToToprakBtn.disabled = loading;
     havaToToprakSpin.classList.toggle("hidden", !loading);
     havaToToprakArrow.classList.toggle("hidden", loading);
-    havaToToprakLabel.textContent = loading ? "Toprak verisi alınıyor…" : "Toprak ve Arazi Verisine Geç";
+    havaToToprakLabel.textContent = loading
+      ? window.I18n.t("results.weather.to_soil_loading")
+      : window.I18n.t("results.weather.to_soil");
   }
 
-  const AY_KISA = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
-  const GUN_KISA = ["Paz","Pzt","Sal","Çar","Per","Cum","Cmt"];
+  // Not: bu dizilere doğrudan erişmek yerine ayKisa()/gunKisa() kullanın —
+  // i18n hazır olmadan çağrılırsa (henüz init olmadıysa) tr'ye düşer.
+  function ayKisa() {
+    const v = window.I18n.t("date.months_short", { returnObjects: true });
+    return Array.isArray(v) && v.length === 12 && v[0]
+      ? v
+      : ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+  }
+  function gunKisa() {
+    const v = window.I18n.t("date.days_short", { returnObjects: true });
+    return Array.isArray(v) && v.length === 7 && v[0]
+      ? v
+      : ["Paz","Pzt","Sal","Çar","Per","Cum","Cmt"];
+  }
 
   function clearAnaliz() {
     for (const el of [havaCard, toprakCard, havaLoading, toprakLoading,
@@ -547,7 +556,7 @@
     havaToToprakBtn.disabled = true;
     havaToToprakSpin.classList.add("hidden");
     havaToToprakArrow.classList.remove("hidden");
-    havaToToprakLabel.textContent = "Toprak ve Arazi Verisine Geç";
+    havaToToprakLabel.textContent = window.I18n.t("results.weather.to_soil");
     resetKesifTabs();
   }
 
@@ -583,7 +592,7 @@
       havaDone = true;
       setKesifTabState("hava", "done");
     } catch (e) {
-      setAnalizError("hava", `Hava verisi alınamadı: ${e.message}`);
+      setAnalizError("hava", `${window.I18n.t("results.weather.fetch_failed")}: ${e.message}`);
       setKesifTabState("hava", "none");
       return;
     }
@@ -599,7 +608,7 @@
       setKesifTabState("toprak", "done");
       setHavaToToprak("ready");  // toprak hazır: butonla geçilebilir
     } catch (e) {
-      setAnalizError("toprak", `Toprak verisi alınamadı: ${e.message}`);
+      setAnalizError("toprak", `${window.I18n.t("results.soil.fetch_failed")}: ${e.message}`);
       setKesifTabState("toprak", "none");
       setHavaToToprak("ready");  // hata olsa da sekme açık; kullanıcı geçebilsin
       return;
@@ -618,7 +627,7 @@
       const card = document.createElement("div");
       card.className = "border rounded p-2 text-center text-xs space-y-0.5 bg-slate-50";
       card.innerHTML = `
-        <div class="font-medium text-slate-700">${GUN_KISA[d.getDay()]}, ${d.getDate()} ${AY_KISA[d.getMonth()]}</div>
+        <div class="font-medium text-slate-700">${gunKisa()[d.getDay()]}, ${d.getDate()} ${ayKisa()[d.getMonth()]}</div>
         <div>
           <span class="text-red-600 font-semibold">${Math.round(g.sicaklik_max)}°</span>
           <span class="text-slate-400 mx-0.5">/</span>
@@ -634,7 +643,7 @@
       const tr = document.createElement("tr");
       tr.className = m.ay % 2 ? "bg-white" : "bg-slate-50";
       tr.innerHTML = `
-        <td class="px-2 py-1 font-medium">${AY_KISA[m.ay - 1]}</td>
+        <td class="px-2 py-1 font-medium">${ayKisa()[m.ay - 1]}</td>
         <td class="px-2 py-1 font-mono">${m.sicaklik_ort.toFixed(1)}</td>
         <td class="px-2 py-1 font-mono">${m.yagis_top.toFixed(1)}</td>
       `;
@@ -655,7 +664,7 @@
       ok.classList.remove("hidden");
       ok.style.transform = `rotate(${y.baki_derece}deg)`;
     } else {
-      $("t-baki").textContent = "Düz";
+      $("t-baki").textContent = window.I18n.t("results.soil.flat");
       ok.classList.add("hidden");
     }
     toprakKatmanBody.innerHTML = "";
@@ -682,7 +691,7 @@
 
   const analizBtn = $("analiz-btn");
   analizBtn.addEventListener("click", () => {
-    if (!lastCentroid) return setAlert("Önce bir parsel sorgula.");
+    if (!lastCentroid) return setAlert(window.I18n.t("results.summary.query_first"));
     setAlert("");
     clearAnaliz();
     clearRapor();
@@ -738,9 +747,8 @@
   });
 
   // Rapor infografiği — LLM'den bağımsız, gerçek hava/toprak JSON'ından SVG çizer.
-  function igKart(baslik, svg) {
+  function igKart(baslik, svg, genis = false) {
     if (!svg) return "";
-    const genis = baslik === "İklim Normali (1991-2020)" || baslik === "Topografya";
     return `<div class="ig-card${genis ? " sm:col-span-2" : ""}">
       <div class="ig-baslik">${baslik}</div>${svg}</div>`;
   }
@@ -751,10 +759,10 @@
     if (!window.Charts || (!lastHava && !lastToprak)) return;
     const ust = lastToprak && Array.isArray(lastToprak.katmanlar) ? lastToprak.katmanlar[0] : null;
     const kartlar = [
-      igKart("İklim Normali (1991-2020)", lastHava && Charts.iklimDiyagrami(lastHava.iklim_normali)),
-      igKart("Tekstür Üçgeni (üst katman)", ust && Charts.teksturUcgeni(ust)),
-      igKart("Toprak Bileşimi", lastToprak && Charts.toprakKompozisyon(lastToprak.katmanlar)),
-      igKart("Topografya", lastToprak && Charts.topografyaKart(lastToprak.yukseklik)),
+      igKart(window.I18n.t("report.infographic.climate_normal"), lastHava && Charts.iklimDiyagrami(lastHava.iklim_normali), true),
+      igKart(window.I18n.t("report.infographic.texture_triangle"), ust && Charts.teksturUcgeni(ust)),
+      igKart(window.I18n.t("report.infographic.soil_composition"), lastToprak && Charts.toprakKompozisyon(lastToprak.katmanlar)),
+      igKart(window.I18n.t("report.infographic.topography"), lastToprak && Charts.topografyaKart(lastToprak.yukseklik), true),
     ].filter(Boolean);
     if (!kartlar.length) return;
     raporInfografik.innerHTML = kartlar.join("");
@@ -770,7 +778,7 @@
     raporStatus.textContent = "";
     raporAdimlar.innerHTML = "";
     raporAdimlar.classList.add("hidden");
-    raporBtnLabel.textContent = "Tarlamı Analiz Et (AI Raporu)";
+    raporBtnLabel.textContent = window.I18n.t("report.generate");
     raporToSohbetWrap.classList.add("hidden");
     raporAksiyonWrap.classList.add("hidden");
     pdfIndirBtn.disabled = true;
@@ -799,9 +807,9 @@
     if (!lastQuery) return;
     clearRapor();
     raporCard.classList.remove("hidden");
-    raporStatus.textContent = "Agent çalışıyor…";
+    raporStatus.textContent = window.I18n.t("report.agent_running");
     raporSpinner.classList.remove("hidden");
-    raporBtnLabel.textContent = "Üretiliyor…";
+    raporBtnLabel.textContent = window.I18n.t("report.generating");
     raporBtn.disabled = true;
     setRaporTabState("busy");
     try {
@@ -816,7 +824,7 @@
         if (r.status === 401) {
           window.Auth.setLoggedOut();
           window.Auth.openModal("giris");
-          window.Auth.setAlert("Oturumunuz sona ermiş; lütfen tekrar giriş yapın.", "info");
+          window.Auth.setAlert(window.I18n.t("auth.session_expired"), "info");
         }
         throw new Error(detail);
       }
@@ -839,13 +847,13 @@
           try { ev = JSON.parse(line); } catch (_) { continue; }
           if (ev.tip === "baslangic") {
             raporStatus.textContent = ev.model || "";
-            adimEkle("• agent başladı", "info");
+            adimEkle(window.I18n.t("report.step_started"), "info");
           } else if (ev.tip === "tool_call") {
             adimEkle(`  → ${ev.ad}(${fmtArgs(ev.args)})`, "call");
           } else if (ev.tip === "tool_result") {
             adimEkle(`  ← ${ev.ad}: ${ev.ozet}`, "result");
           } else if (ev.tip === "rapor") {
-            adimEkle("• rapor hazır", "info");
+            adimEkle(window.I18n.t("report.step_ready"), "info");
             raporIcerik = ev.icerik || "";
             raporContent.innerHTML = marked.parse(raporIcerik);
             renderRaporInfografik();
@@ -855,13 +863,13 @@
             raporStatus.textContent = ev.model || raporStatus.textContent;
           } else if (ev.tip === "hata") {
             stoppedByErr = true;
-            raporError.textContent = `Rapor üretilemedi: ${ev.mesaj}`;
+            raporError.textContent = `${window.I18n.t("report.generation_failed")}: ${ev.mesaj}`;
             raporError.classList.remove("hidden");
           }
         }
       }
       if (!stoppedByErr && !raporContent.innerHTML) {
-        throw new Error("Agent boş cevap döndü.");
+        throw new Error(window.I18n.t("report.empty_response"));
       }
       if (!stoppedByErr && raporIcerik) {
         rtBtn.sohbet.disabled = false;
@@ -873,12 +881,12 @@
         setRaporTabState("none");
       }
     } catch (e) {
-      raporError.textContent = `Rapor üretilemedi: ${e.message}`;
+      raporError.textContent = `${window.I18n.t("report.generation_failed")}: ${e.message}`;
       raporError.classList.remove("hidden");
       setRaporTabState("none");
     } finally {
       raporSpinner.classList.add("hidden");
-      raporBtnLabel.textContent = "Tarlamı Analiz Et (AI Raporu)";
+      raporBtnLabel.textContent = window.I18n.t("report.generate");
       raporBtn.disabled = false;
     }
   });
@@ -971,18 +979,14 @@
     <div class="pdf-brand">
       <span class="pdf-logo">${PDF_LOGO}</span>
       <div><div class="pdf-mark">Ne Yetişir?</div>
-        <div class="pdf-sub">Yapay Zeka Destekli Tarla Analiz Raporu</div></div>
+        <div class="pdf-sub">${window.I18n.t("report.pdf.subtitle")}</div></div>
     </div>
     <div class="pdf-meta"><div class="k">${konum}</div><div>${tarih}</div></div>
   </div>
   ${konumKutu}
   ${infografik ? `<div class="pdf-ig">${infografik}</div>` : ""}
   <div class="pdf-body">${raporContent.innerHTML}</div>
-  <div class="pdf-foot">
-    Bu rapor "Ne Yetişir?" demo uygulaması tarafından, halka açık TKGM, Open-Meteo ve ISRIC SoilGrids
-    verileri ile yapay zeka kullanılarak üretilmiştir. Tahmini değerler içerir; resmi/ticari amaçla
-    kullanılamaz. Kesin sonuç için lab toprak testi ve ziraat mühendisine danışınız.
-  </div>
+  <div class="pdf-foot">${window.I18n.t("report.pdf.disclaimer")}</div>
 </body></html>`;
   }
 
@@ -1069,11 +1073,11 @@
     if (!mesaj) return;
     if (!window.Auth.user) {
       window.Auth.openModal("giris");
-      window.Auth.setAlert("Sohbet için giriş yapın.", "info");
+      window.Auth.setAlert(window.I18n.t("report.chat.login_required"), "info");
       return;
     }
     if (!raporIcerik || !lastQuery) {
-      sohbetStatus.textContent = "Önce raporu üret.";
+      sohbetStatus.textContent = window.I18n.t("report.chat.generate_report_first");
       return;
     }
 
@@ -1081,8 +1085,8 @@
     sohbetInput.value = "";
     sohbetGonder.disabled = true;
     sohbetInput.disabled = true;
-    sohbetStatus.textContent = "Yazıyor…";
-    const aiBubble = addBubble("assistant", "_yazıyor…_");
+    sohbetStatus.textContent = window.I18n.t("report.chat.typing");
+    const aiBubble = addBubble("assistant", `_${window.I18n.t("report.chat.typing")}_`);
 
     let yanit = "";
     let stoppedByErr = false;
@@ -1104,7 +1108,7 @@
         if (r.status === 401) {
           window.Auth.setLoggedOut();
           window.Auth.openModal("giris");
-          window.Auth.setAlert("Oturumunuz sona ermiş; lütfen tekrar giriş yapın.", "info");
+          window.Auth.setAlert(window.I18n.t("auth.session_expired"), "info");
         }
         throw new Error(detail);
       }
@@ -1141,21 +1145,21 @@
             // status zaten ozet'ten dolmuş olabilir
           } else if (ev.tip === "hata") {
             stoppedByErr = true;
-            aiBubble.innerHTML = `<p class="text-red-600 m-0">Hata: ${escapeHtml(ev.mesaj || "")}</p>`;
-            sohbetStatus.textContent = "hata";
+            aiBubble.innerHTML = `<p class="text-red-600 m-0">${window.I18n.t("report.chat.error_prefix")}: ${escapeHtml(ev.mesaj || "")}</p>`;
+            sohbetStatus.textContent = window.I18n.t("report.chat.error_status");
           }
         }
       }
       if (!stoppedByErr && !yanit) {
-        aiBubble.innerHTML = `<p class="text-red-600 m-0">Boş cevap.</p>`;
+        aiBubble.innerHTML = `<p class="text-red-600 m-0">${window.I18n.t("report.chat.empty_response")}</p>`;
       }
       if (!stoppedByErr && yanit) {
         chatGecmis.push({ rol: "user", icerik: mesaj });
         chatGecmis.push({ rol: "assistant", icerik: yanit });
       }
     } catch (err) {
-      aiBubble.innerHTML = `<p class="text-red-600 m-0">Hata: ${escapeHtml(err.message)}</p>`;
-      sohbetStatus.textContent = "hata";
+      aiBubble.innerHTML = `<p class="text-red-600 m-0">${window.I18n.t("report.chat.error_prefix")}: ${escapeHtml(err.message)}</p>`;
+      sohbetStatus.textContent = window.I18n.t("report.chat.error_status");
     } finally {
       sohbetGonder.disabled = false;
       sohbetInput.disabled = false;
@@ -1182,7 +1186,7 @@
       for (const id of liste) {
         const opt = document.createElement("option");
         opt.value = id;
-        opt.textContent = id === varsayilan ? `${id} (varsayılan)` : id;
+        opt.textContent = id === varsayilan ? `${id}${window.I18n.t("report.model_default_suffix")}` : id;
         if (id === varsayilan) opt.selected = true;
         modelSelect.appendChild(opt);
       }
@@ -1190,7 +1194,7 @@
       modelSelect.innerHTML = "";
       const opt = document.createElement("option");
       opt.value = "";
-      opt.textContent = "— Yüklenemedi —";
+      opt.textContent = window.I18n.t("report.model_load_error");
       modelSelect.appendChild(opt);
     }
   }
@@ -1213,13 +1217,26 @@
     }
     openHosgeldin();
   }
-  function closeHosgeldin() {
-    try { sessionStorage.setItem("hosgeldin_kapatildi", "1"); } catch (e) {}
+  function hideHosgeldin() {
     hgCard.classList.add("scale-95", "opacity-0");
     setTimeout(() => hgModal.classList.add("hidden"), 200);
   }
-  // Yalnızca çarpı kapatır — arka plana tıklama / Escape bilerek kapatmaz.
+  // Çarpıya basınca: bir daha (yenilemede dahil) oturum boyunca açılmaz.
+  function closeHosgeldin() {
+    try { sessionStorage.setItem("hosgeldin_kapatildi", "1"); } catch (e) {}
+    hideHosgeldin();
+  }
+  // Boş alana tıklayınca: sadece o an kapanır, sessionStorage'a yazılmaz —
+  // sayfa yenilenince popup tekrar gösterilir.
+  function dismissHosgeldin() {
+    hideHosgeldin();
+  }
   $("hosgeldin-close").addEventListener("click", closeHosgeldin);
+  // Kartı ortalayan sarmalayıcı tüm ekranı kapladığı için tıklamalar önce ona
+  // düşer; kartın kendisine değil de bu sarmalayıcıya (boş alana) tıklandıysa kapat.
+  $("hosgeldin-overlay").addEventListener("click", (e) => {
+    if (e.target.id === "hosgeldin-overlay") dismissHosgeldin();
+  });
   // "Tarlaları İncele" → herkese açık kiralık tarlalar sayfası.
   $("hosgeldin-cta").addEventListener("click", () => { location.href = "/kiralik.html"; });
   // "Başvuru Yap" → anonim çiftçi başvuru formu.

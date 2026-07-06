@@ -51,6 +51,18 @@ class TkgmNotFound(TkgmError):
     """Liste/parsel boş veya bulunamadı."""
 
 
+# Düz Python/Unicode sıralaması Ç/Ğ/İ/Ö/Ş/Ü ile başlayan isimleri (Çanakkale,
+# İstanbul, Şanlıurfa vb.) listenin sonuna atar — bu harflerin kod noktası Z'den
+# büyük. Türkçe alfabe sırasına göre karşılaştırma anahtarı üretiyoruz.
+_TR_ALPHABET = "abcçdefgğhıijklmnoöprsştuüvyz"
+_TR_ORDER = {ch: i for i, ch in enumerate(_TR_ALPHABET)}
+
+
+def _tr_sort_key(s: str) -> tuple[int, ...]:
+    normalized = s.strip().replace("İ", "i").replace("I", "ı").lower()
+    return tuple(_TR_ORDER.get(ch, 99) for ch in normalized)
+
+
 def _features_to_id_ad(feature_collection: Any) -> list[IdAd]:
     feats = feature_collection.get("features") if isinstance(feature_collection, dict) else None
     if not isinstance(feats, list):
@@ -68,7 +80,7 @@ def _features_to_id_ad(feature_collection: Any) -> list[IdAd]:
         if not (isinstance(geom, dict) and "type" in geom and "coordinates" in geom):
             geom = None
         out.append(IdAd(id=str(rid), ad=str(rad), geometry=geom))
-    out.sort(key=lambda x: x.ad)
+    out.sort(key=lambda x: _tr_sort_key(x.ad))
     return out
 
 

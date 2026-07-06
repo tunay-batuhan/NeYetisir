@@ -21,10 +21,16 @@
 
   // Rapordan gelen parsel bilgilerini URL query-param'larından ön-doldur.
   const p = new URLSearchParams(location.search);
-  [["il", "f-il"], ["ilce", "f-ilce"], ["mahalle", "f-mahalle"], ["ada", "f-ada"],
+  window.IlIlce.baglaSelectler("f-il", "f-ilce", { il: p.get("il"), ilce: p.get("ilce") });
+  [["mahalle", "f-mahalle"], ["ada", "f-ada"],
    ["parsel", "f-parsel"], ["alan_m2", "f-alan_m2"]].forEach(([k, id]) => {
     const v = p.get(k);
     if (v) { const el = $(id); if (el) el.value = v; }
+  });
+
+  // Kimyasal/gübre "Evet" seçilince "ne kullanıldı" alanını göster.
+  $("f-kimyasal_gubre_var").addEventListener("change", (e) => {
+    $("f-kimyasal_gubre_aciklama_wrap").classList.toggle("hidden", e.target.value !== "evet");
   });
 
   form.addEventListener("submit", async (e) => {
@@ -32,17 +38,24 @@
     clearAlert();
     const btn = $("f-submit");
     const alanStr = $("f-alan_m2").value.trim();
+    const uzaklikStr = $("f-su_kaynagina_uzaklik_km").value.trim();
 
     const body = {
       ad_soyad: $("f-ad_soyad").value.trim(),
       telefon: $("f-telefon").value.trim(),
       email: $("f-email").value.trim(),
-      il: opt($("f-il").value),
-      ilce: opt($("f-ilce").value),
+      il: window.IlIlce.seciliAd("f-il"),
+      ilce: window.IlIlce.seciliAd("f-ilce"),
       mahalle: opt($("f-mahalle").value),
       ada: opt($("f-ada").value),
       parsel: opt($("f-parsel").value),
       alan_m2: alanStr === "" ? null : Number(alanStr),
+      agac_var: opt($("f-agac_var").value),
+      tas_var: opt($("f-tas_var").value),
+      son_urun: opt($("f-son_urun").value),
+      kimyasal_gubre_var: opt($("f-kimyasal_gubre_var").value),
+      kimyasal_gubre_aciklama: opt($("f-kimyasal_gubre_aciklama").value),
+      su_kaynagina_uzaklik_km: uzaklikStr === "" ? null : Number(uzaklikStr),
       aciklama: opt($("f-aciklama").value),
     };
 
@@ -66,7 +79,7 @@
       $("done-card").classList.remove("hidden");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
-      showAlert(err.message || "Talep gönderilemedi.");
+      showAlert(err.message || window.I18n.t("tarlayardim.submit_failed"));
     } finally {
       btn.disabled = false;
     }
@@ -74,6 +87,7 @@
 
   $("yeni-basvuru").addEventListener("click", () => {
     form.reset();
+    window.IlIlce.baglaSelectler("f-il", "f-ilce");
     $("done-card").classList.add("hidden");
     $("form-card").classList.remove("hidden");
   });

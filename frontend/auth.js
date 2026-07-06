@@ -11,11 +11,14 @@
   "use strict";
   const $ = (id) => document.getElementById(id);
 
-  const PROFIL_ETIKET = {
-    eken: "Tarlamı ekiyorum",
-    kiralayan: "Tarlamı kiralıyorum",
-    kiraci: "Tarla kiralıyorum",
-  };
+  function profilEtiket(profil) {
+    const map = {
+      eken: "auth.profile_label_eken",
+      kiralayan: "auth.profile_label_kiralayan",
+      kiraci: "auth.profile_label_kiraci",
+    };
+    return map[profil] ? window.I18n.t(map[profil]) : profil;
+  }
 
   // --- Modal markup'ı (tek kaynak) DOM'a enjekte et ---------------------------
   const AUTH_MODAL_HTML = `
@@ -33,16 +36,16 @@
                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
               </svg>
             </span>
-            <h2 class="font-bold text-brand-deep text-lg">Hesabım</h2>
+            <h2 class="font-bold text-brand-deep text-lg" data-i18n="auth.account_title">Hesabım</h2>
           </div>
           <button id="auth-close" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
         </div>
 
         <div class="px-5 pt-4">
           <div class="grid grid-cols-2 gap-1 p-1 rounded-xl bg-slate-100 text-sm font-medium">
-            <button id="at-giris"
+            <button id="at-giris" data-i18n="auth.login"
                     class="rounded-lg py-1.5 transition bg-white text-brand-deep shadow-sm">Giriş Yap</button>
-            <button id="at-kayit"
+            <button id="at-kayit" data-i18n="auth.register"
                     class="rounded-lg py-1.5 transition text-slate-500 hover:text-slate-700">Kayıt Ol</button>
           </div>
         </div>
@@ -51,16 +54,16 @@
 
         <form id="giris-form" class="px-5 py-4 space-y-3">
           <div>
-            <label class="block text-sm font-medium text-slate-600 mb-1">E-posta</label>
+            <label class="block text-sm font-medium text-slate-600 mb-1" data-i18n="auth.email_label">E-posta</label>
             <input id="giris-email" type="email" required autocomplete="email"
-                   class="w-full border rounded-lg px-3 py-2" placeholder="ornek@eposta.com" />
+                   class="w-full border rounded-lg px-3 py-2" data-i18n-placeholder="auth.email_placeholder" placeholder="ornek@eposta.com" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-600 mb-1">Parola</label>
+            <label class="block text-sm font-medium text-slate-600 mb-1" data-i18n="auth.password_label">Parola</label>
             <input id="giris-parola" type="password" required autocomplete="current-password"
                    class="w-full border rounded-lg px-3 py-2" placeholder="••••••••" />
           </div>
-          <button id="giris-submit" type="submit"
+          <button id="giris-submit" type="submit" data-i18n="auth.login"
                   class="w-full bg-brand hover:bg-brand-dark disabled:bg-slate-400
                          text-white font-semibold px-4 py-2.5 rounded-lg transition">
             Giriş Yap
@@ -69,49 +72,49 @@
 
         <form id="kayit-form" class="hidden px-5 py-4 space-y-3">
           <div>
-            <label class="block text-sm font-medium text-slate-600 mb-1">Ad Soyad</label>
+            <label class="block text-sm font-medium text-slate-600 mb-1" data-i18n="auth.fullname_label">Ad Soyad</label>
             <input id="kayit-ad" type="text" required autocomplete="name"
-                   class="w-full border rounded-lg px-3 py-2" placeholder="Adınız Soyadınız" />
+                   class="w-full border rounded-lg px-3 py-2" data-i18n-placeholder="auth.fullname_placeholder" placeholder="Adınız Soyadınız" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-600 mb-1">E-posta</label>
+            <label class="block text-sm font-medium text-slate-600 mb-1" data-i18n="auth.email_label">E-posta</label>
             <input id="kayit-email" type="email" required autocomplete="email"
-                   class="w-full border rounded-lg px-3 py-2" placeholder="ornek@eposta.com" />
+                   class="w-full border rounded-lg px-3 py-2" data-i18n-placeholder="auth.email_placeholder" placeholder="ornek@eposta.com" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-600 mb-1">Parola</label>
+            <label class="block text-sm font-medium text-slate-600 mb-1" data-i18n="auth.password_label">Parola</label>
             <input id="kayit-parola" type="password" required autocomplete="new-password" minlength="6"
-                   class="w-full border rounded-lg px-3 py-2" placeholder="En az 6 karakter" />
+                   class="w-full border rounded-lg px-3 py-2" data-i18n-placeholder="auth.password_min_placeholder" placeholder="En az 6 karakter" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-slate-600 mb-1.5">Nasıl kullanacaksın?</label>
+            <label class="block text-sm font-medium text-slate-600 mb-1.5" data-i18n="auth.profile_question">Nasıl kullanacaksın?</label>
             <div id="profil-secim" class="space-y-2">
               <label class="profil-kart flex items-start gap-3 rounded-xl border-2 border-slate-200 p-3 cursor-pointer transition hover:border-brand/50">
                 <input type="radio" name="profil" value="eken" class="mt-0.5 accent-brand" required />
                 <span>
-                  <span class="block text-sm font-semibold text-slate-800">Tarlamı ekmek istiyorum</span>
-                  <span class="block text-xs text-slate-500">Kendi tarlamı işleyeceğim, ne yetişeceğini öğreneceğim.</span>
+                  <span class="block text-sm font-semibold text-slate-800" data-i18n="auth.profile_eken_title">Tarlamı ekmek istiyorum</span>
+                  <span class="block text-xs text-slate-500" data-i18n="auth.profile_eken_desc">Kendi tarlamı işleyeceğim, ne yetişeceğini öğreneceğim.</span>
                 </span>
               </label>
               <label class="profil-kart flex items-start gap-3 rounded-xl border-2 border-slate-200 p-3 cursor-pointer transition hover:border-brand/50">
                 <input type="radio" name="profil" value="kiralayan" class="mt-0.5 accent-brand" />
                 <span>
-                  <span class="block text-sm font-semibold text-slate-800">Tarlamı kiralamak istiyorum</span>
-                  <span class="block text-xs text-slate-500">Tarlamı işleyecek birini arıyorum, kiraya vereceğim.</span>
+                  <span class="block text-sm font-semibold text-slate-800" data-i18n="auth.profile_kiralayan_title">Tarlamı kiralamak istiyorum</span>
+                  <span class="block text-xs text-slate-500" data-i18n="auth.profile_kiralayan_desc">Tarlamı işleyecek birini arıyorum, kiraya vereceğim.</span>
                 </span>
               </label>
               <label class="profil-kart flex items-start gap-3 rounded-xl border-2 border-slate-200 p-3 cursor-pointer transition hover:border-brand/50">
                 <input type="radio" name="profil" value="kiraci" class="mt-0.5 accent-brand" />
                 <span>
-                  <span class="block text-sm font-semibold text-slate-800">Tarla kiralayıp ekmek istiyorum</span>
-                  <span class="block text-xs text-slate-500">Başkasının tarlasını kiralayıp işlemek istiyorum.</span>
+                  <span class="block text-sm font-semibold text-slate-800" data-i18n="auth.profile_kiraci_title">Tarla kiralayıp ekmek istiyorum</span>
+                  <span class="block text-xs text-slate-500" data-i18n="auth.profile_kiraci_desc">Başkasının tarlasını kiralayıp işlemek istiyorum.</span>
                 </span>
               </label>
             </div>
           </div>
 
-          <button id="kayit-submit" type="submit"
+          <button id="kayit-submit" type="submit" data-i18n="auth.register"
                   class="w-full bg-brand hover:bg-brand-dark disabled:bg-slate-400
                          text-white font-semibold px-4 py-2.5 rounded-lg transition">
             Kayıt Ol
@@ -193,7 +196,7 @@
         userBox.classList.add("flex");
         const adEl = $("user-ad"), profilEl = $("user-profil");
         if (adEl) adEl.textContent = aktifKullanici.ad;
-        if (profilEl) profilEl.textContent = PROFIL_ETIKET[aktifKullanici.profil] || aktifKullanici.profil;
+        if (profilEl) profilEl.textContent = profilEtiket(aktifKullanici.profil);
       }
     } else {
       for (const b of authButtons) { b.classList.remove("hidden"); b.classList.add("sm:inline-flex"); }
@@ -236,7 +239,7 @@
       closeAuthModal();
       girisForm.reset();
     } catch (err) {
-      setAuthAlert(err.message || "Giriş başarısız.");
+      setAuthAlert(err.message || window.I18n.t("auth.login_failed"));
     } finally {
       btn.disabled = false;
     }
@@ -246,7 +249,7 @@
     e.preventDefault();
     const btn = $("kayit-submit");
     const profilEl = kayitForm.querySelector('input[name="profil"]:checked');
-    if (!profilEl) { setAuthAlert("Lütfen bir kullanım profili seçin."); return; }
+    if (!profilEl) { setAuthAlert(window.I18n.t("auth.profile_required")); return; }
     btn.disabled = true;
     setAuthAlert("");
     try {
@@ -260,7 +263,7 @@
       closeAuthModal();
       kayitForm.reset();
     } catch (err) {
-      setAuthAlert(err.message || "Kayıt başarısız.");
+      setAuthAlert(err.message || window.I18n.t("auth.register_failed"));
     } finally {
       btn.disabled = false;
     }

@@ -121,9 +121,23 @@ class KullaniciBilgi(BaseModel):
 Durum = Literal["beklemede", "yayinda", "reddedildi"]
 Egim = Literal["düz", "hafif eğimli", "orta eğimli", "dik"]
 SuDurumu = Literal["sulu", "kuru", "kısmen sulu"]
+EvetHayir = Literal["evet", "hayır"]
 
 
-class KiralikBasvuruIstek(BaseModel):
+class TarlaSurveyAlanlari(BaseModel):
+    """Kiraya-ver ve ekim-yardım formlarının ortak 'tarla anketi' alanları."""
+
+    agac_var: EvetHayir | None = None
+    tas_var: EvetHayir | None = None
+    son_urun: str | None = Field(default=None, max_length=120, description="En son ekilen ürün")
+    kimyasal_gubre_var: EvetHayir | None = None
+    kimyasal_gubre_aciklama: str | None = Field(
+        default=None, max_length=300, description="kimyasal_gubre_var=evet ise kullanılan ürün"
+    )
+    su_kaynagina_uzaklik_km: float | None = Field(default=None, ge=0, le=1000)
+
+
+class KiralikBasvuruIstek(TarlaSurveyAlanlari):
     """Anonim 'tarlamı kiraya ver' formu. Giriş gerektirmez; iletişim form içinde."""
 
     ad_soyad: str = Field(..., min_length=2, max_length=80)
@@ -163,7 +177,7 @@ class AdminBilgi(BaseModel):
     kullanici: str
 
 
-class KiralikTarlaPublic(BaseModel):
+class KiralikTarlaPublic(TarlaSurveyAlanlari):
     """Herkese açık ilan yanıtı — yalnızca 'yayinda' kayıtlar listelenir.
     İletişim bilgisi (ad/telefon/email) bilerek dışarı verilmez; ilgilenenler
     'kiralama talebi' formuyla başvurur (admin eşleştirir)."""
@@ -281,7 +295,7 @@ class CiftciBasvuruAdminView(BaseModel):
 EkimYardimDurum = Literal["beklemede", "onaylandi", "reddedildi"]
 
 
-class EkimYardimIstek(BaseModel):
+class EkimYardimIstek(TarlaSurveyAlanlari):
     """Anonim 'Tarlama Yardım Al' formu: tarla sahibi ekim/işleme yardımı ister.
     Parsel alanları opsiyonel (rapordan ön-doldurulabilir ama zorunlu değil)."""
 
@@ -305,7 +319,7 @@ class EkimYardimIstek(BaseModel):
         return v
 
 
-class EkimYardimAdminView(BaseModel):
+class EkimYardimAdminView(TarlaSurveyAlanlari):
     """Admin paneli görünümü — iletişim + parsel + durum/zaman dahil."""
 
     id: int
