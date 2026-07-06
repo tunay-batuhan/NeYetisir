@@ -1,12 +1,38 @@
-// Paylaşılan il/ilçe cascading-select yardımcısı — /api/iller ve /api/ilceler'i
-// kullanır. Backend'deki il/ilçe alanları serbest metin olduğu için (TKGM id'sine
-// referans değil) form gönderiminde seçili option'ın görünen adı (ad) kullanılır;
-// id yalnızca ilçe listesini çekmek için tutulur.
+// Paylaşılan il/ilçe cascading-select yardımcısı — TKGM public API'sine
+// doğrudan tarayıcıdan istek atar (kullanıcı kendi IP'sini kullanır).
 window.IlIlce = (function () {
+  const TKGM_IL  = "https://parselsorgu.tkgm.gov.tr/app/modules/administrativeQuery/data/ilListe.json";
+  const TKGM_ILC = "https://cbsapi.tkgm.gov.tr/megsiswebapi.v3.1/api/idariYapi/ilceListe";
+
   async function fetchJson(url) {
     const r = await fetch(url);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     return r.json();
+  }
+
+  // TKGM GeoJSON FeatureCollection → [{id, ad}] Türkçe alfabetik sıralı
+  function parseTkgm(fc) {
+    const feats = (fc && fc.features) || [];
+    return feats
+      .map(f => {
+        const p = (f && f.properties) || {};
+        return p.id != null && p.text != null ? { id: String(p.id), ad: String(p.text) } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.ad.localeCompare(b.ad, "tr"));
+  }
+
+  const CHEVRON = `<path d="m6 9 6 6 6-6"/>`;
+  const SPINNER = `<style>@keyframes _spin{to{transform:rotate(360deg)}}</style>
+    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" stroke-dasharray="28 56"
+      style="transform-origin:center;animation:_spin .7s linear infinite"/>`;
+
+  function setYukleniyor(sel, yukleniyor) {
+    const svg = sel.parentElement && sel.parentElement.querySelector("svg");
+    if (!svg) return;
+    svg.innerHTML = yukleniyor ? SPINNER : CHEVRON;
+    svg.classList.toggle("text-brand", yukleniyor);
+    svg.classList.toggle("text-slate-400", !yukleniyor);
   }
 
   function fillSelect(sel, items, placeholder) {
@@ -46,16 +72,21 @@ window.IlIlce = (function () {
       ilceSel.disabled = true;
       if (!ilId) {
         fillSelect(ilceSel, [], window.I18n.t("query.none_placeholder"));
+        setYukleniyor(ilceSel, false);
         return;
       }
-      fillSelect(ilceSel, [], window.I18n.t("query.loading"));
+      fillSelect(ilceSel, [], window.I18n.t("query.loading") || "Yükleniyor…");
+      setYukleniyor(ilceSel, true);
       try {
-        const ilceler = await fetchJson(`/api/ilceler?ilId=${encodeURIComponent(ilId)}`);
-        fillSelect(ilceSel, ilceler, window.I18n.t("query.select_ilce"));
+        const raw = await fetchJson(`${TKGM_ILC}/${encodeURIComponent(ilId)}`);
+        const ilceler = parseTkgm(raw);
+        fillSelect(ilceSel, ilceler, window.I18n.t("query.select_ilce") || "— İlçe seçin —");
         ilceSel.disabled = false;
-        if (oncedenIlceAd) secByAd(ilceSel, oncedenIlceAd);
       } catch (e) {
-        fillSelect(ilceSel, [], window.I18n.t("query.ilce_load_error"));
+        fillSelect(ilceSel, [], window.I18n.t("query.ilce_load_error") || "Hata");
+      } finally {
+        setYukleniyor(ilceSel, false);
+        if (oncedenIlceAd) secByAd(ilceSel, oncedenIlceAd);
       }
     }
 
@@ -64,15 +95,19 @@ window.IlIlce = (function () {
     // İlk yükleme placeholder'ı statik HTML'de zaten var (data-i18n="query.loading")
     // — burada tekrar yazmıyoruz çünkü sayfa açılışında i18next henüz hazır
     // olmayabilir (t() bu durumda boş döner, iyi olan statik metni ezerdi).
+    setYukleniyor(ilSel, true);
     (async () => {
       try {
-        const iller = await fetchJson("/api/iller");
-        fillSelect(ilSel, iller, window.I18n.t("query.select_il"));
+        const raw = await fetchJson(TKGM_IL);
+        const iller = parseTkgm(raw);
+        fillSelect(ilSel, iller, window.I18n.t("query.select_il") || "— İl seçin —");
         if (onceden && onceden.il && secByAd(ilSel, onceden.il)) {
           await yukleIlceler(ilSel.value, onceden.ilce);
         }
       } catch (e) {
-        fillSelect(ilSel, [], window.I18n.t("query.il_load_error"));
+        fillSelect(ilSel, [], window.I18n.t("query.il_load_error") || "Hata");
+      } finally {
+        setYukleniyor(ilSel, false);
       }
     })();
   }
@@ -84,5 +119,5 @@ window.IlIlce = (function () {
     return sel.options[sel.selectedIndex].textContent;
   }
 
-  return { baglaSelectler, seciliAd };
+  return { baglaSelectler, seciliAd, setYukleniyor };
 })();

@@ -176,7 +176,7 @@
     "feature_profit": "Karlı<br>Fırsatlar",
     "feature_analysis": "Detaylı<br>Analiz",
     "cta_explore": "Tarlaları İncele",
-    "cta_apply": "Başvuru Yap",
+    "cta_apply": "Çiftçi Başvurusu Yap",
     "cta_list": "Tarlanızı kiraya mı vermek istiyorsunuz?"
   },
   "form": {
@@ -283,7 +283,20 @@
     "unknown_error": "bilinmeyen hata"
   },
   "date": {
-    "months_short": ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"],
-    "days_short": ["Paz","Pzt","Sal","Çar","Per","Cum","Cmt"]
+    "months_short": [
+      "Oca",
+      "Şub",
+      "Mar",
+      "Nis",
+      "May",
+      "Haz",
+      "Tem",
+      "Ağu",
+      "Eyl",
+      "Eki",
+      "Kas",
+      "Ara"
+    ],
+    "days_short": ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"]
   }
 }

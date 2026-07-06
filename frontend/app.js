@@ -125,6 +125,23 @@
     return r.json();
   }
 
+  const TKGM_IL  = "https://parselsorgu.tkgm.gov.tr/app/modules/administrativeQuery/data/ilListe.json";
+  const TKGM_ILC = "https://cbsapi.tkgm.gov.tr/megsiswebapi.v3.1/api/idariYapi/ilceListe";
+  const TKGM_MAH = "https://cbsapi.tkgm.gov.tr/megsiswebapi.v3.1/api/idariYapi/mahalleListe";
+
+  function parseTkgm(fc) {
+    const feats = (fc && fc.features) || [];
+    return feats
+      .map(f => {
+        const p = (f && f.properties) || {};
+        return p.id != null && p.text != null
+          ? { id: String(p.id), ad: String(p.text), geometry: (f.geometry || null) }
+          : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.ad.localeCompare(b.ad, "tr"));
+  }
+
   // --- Panel & chrome controls -------------------------------------------
 
   const resultsPanel = $("results-panel");
@@ -272,9 +289,9 @@
 
   async function loadIller() {
     try {
-      const iller = await fetchJson("/api/iller");
+      const iller = parseTkgm(await fetchJson(TKGM_IL));
       cacheGeoms("il", iller);
-      fillSelect(ilSel, iller, window.I18n.t("query.select_il"));
+      fillSelect(ilSel, iller, window.I18n.t("query.select_il") || "— İl seçin —");
     } catch (e) {
       fillSelect(ilSel, [], window.I18n.t("query.il_load_error"));
       setAlert(`${window.I18n.t("query.il_fetch_failed")}: ${e.message}`);
@@ -291,7 +308,7 @@
       return;
     }
     try {
-      const items = await fetchJson(`/api/ilceler?ilId=${encodeURIComponent(ilId)}`);
+      const items = parseTkgm(await fetchJson(`${TKGM_ILC}/${encodeURIComponent(ilId)}`));
       cacheGeoms("ilce", items);
       fillSelect(ilceSel, items, window.I18n.t("query.select_ilce"));
       ilceSel.disabled = false;
@@ -301,21 +318,27 @@
     }
   }
 
+  const spinSel = (sel, v) => window.IlIlce && window.IlIlce.setYukleniyor(sel, v);
+
   async function loadMahalleler(ilceId) {
-    fillSelect(mahSel, [], window.I18n.t("query.loading"));
+    fillSelect(mahSel, [], window.I18n.t("query.loading") || "Yükleniyor…");
     mahSel.disabled = true;
+    spinSel(mahSel, true);
     if (!ilceId) {
       fillSelect(mahSel, [], window.I18n.t("query.none_placeholder"));
+      spinSel(mahSel, false);
       return;
     }
     try {
-      const items = await fetchJson(`/api/mahalleler?ilceId=${encodeURIComponent(ilceId)}`);
+      const items = parseTkgm(await fetchJson(`${TKGM_MAH}/${encodeURIComponent(ilceId)}`));
       cacheGeoms("mahalle", items);
-      fillSelect(mahSel, items, window.I18n.t("query.select_mahalle"));
+      fillSelect(mahSel, items, window.I18n.t("query.select_mahalle") || "— Mahalle seçin —");
       mahSel.disabled = false;
     } catch (e) {
       fillSelect(mahSel, [], window.I18n.t("query.error"));
       setAlert(`${window.I18n.t("query.mahalle_fetch_failed")}: ${e.message}`);
+    } finally {
+      spinSel(mahSel, false);
     }
   }
 
