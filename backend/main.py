@@ -6,6 +6,7 @@ from pathlib import Path
 import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from backend import auth as auth_lib
@@ -73,6 +74,10 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="TKGM Parsel Demo", lifespan=lifespan)
+
+# il/ilçe/mahalle yanıtları tam sınır poligonları taşıdığı için büyük olabiliyor
+# (81 il için ~MB seviyesinde); gzip bunu çıplak metin JSON'un onda birine indirir.
+app.add_middleware(GZipMiddleware, minimum_size=500)
 
 app.add_middleware(
     CORSMiddleware,

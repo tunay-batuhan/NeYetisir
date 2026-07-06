@@ -98,6 +98,20 @@
     submitLabel.textContent = on ? window.I18n.t("query.submit_loading") : window.I18n.t("query.submit");
   }
 
+  // il/ilçe/mahalle select'lerinin yanındaki chevron'u yükleniyor spinner'ına
+  // çevirir — index.html'de il-ilce.js yüklenmediği için kendi kopyamız.
+  const CHEVRON = `<path d="m6 9 6 6 6-6"/>`;
+  const SPINNER = `<style>@keyframes _spin{to{transform:rotate(360deg)}}</style>
+    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" stroke-dasharray="28 56"
+      style="transform-origin:center;animation:_spin .7s linear infinite"/>`;
+  function spinSel(sel, yukleniyor) {
+    const svg = sel.parentElement && sel.parentElement.querySelector("svg");
+    if (!svg) return;
+    svg.innerHTML = yukleniyor ? SPINNER : CHEVRON;
+    svg.classList.toggle("text-brand", yukleniyor);
+    svg.classList.toggle("text-slate-400", !yukleniyor);
+  }
+
   // Select'in ilk option'ı (value="") her zaman placeholder'dır — dil
   // değişince yeniden fetch yapmadan yalnız bu metni günceller.
   function retranslatePlaceholder(sel, key) {
@@ -283,13 +297,16 @@
   }
 
   async function loadIller() {
+    spinSel(ilSel, true);
     try {
-      const iller = await fetchJson("/api/iller");
+      const iller = await fetchJson("/api/iller?geo=1");
       cacheGeoms("il", iller);
       fillSelect(ilSel, iller, window.I18n.t("query.select_il") || "— İl seçin —");
     } catch (e) {
       fillSelect(ilSel, [], window.I18n.t("query.il_load_error"));
       setAlert(`${window.I18n.t("query.il_fetch_failed")}: ${e.message}`);
+    } finally {
+      spinSel(ilSel, false);
     }
   }
 
@@ -302,18 +319,19 @@
       fillSelect(ilceSel, [], window.I18n.t("query.none_placeholder"));
       return;
     }
+    spinSel(ilceSel, true);
     try {
-      const items = await fetchJson(`/api/ilceler?ilId=${encodeURIComponent(ilId)}`);
+      const items = await fetchJson(`/api/ilceler?ilId=${encodeURIComponent(ilId)}&geo=1`);
       cacheGeoms("ilce", items);
       fillSelect(ilceSel, items, window.I18n.t("query.select_ilce"));
       ilceSel.disabled = false;
     } catch (e) {
       fillSelect(ilceSel, [], window.I18n.t("query.error"));
       setAlert(`${window.I18n.t("query.ilce_fetch_failed")}: ${e.message}`);
+    } finally {
+      spinSel(ilceSel, false);
     }
   }
-
-  const spinSel = (sel, v) => window.IlIlce && window.IlIlce.setYukleniyor(sel, v);
 
   async function loadMahalleler(ilceId) {
     fillSelect(mahSel, [], window.I18n.t("query.loading") || "Yükleniyor…");
@@ -325,7 +343,7 @@
       return;
     }
     try {
-      const items = await fetchJson(`/api/mahalleler?ilceId=${encodeURIComponent(ilceId)}`);
+      const items = await fetchJson(`/api/mahalleler?ilceId=${encodeURIComponent(ilceId)}&geo=1`);
       cacheGeoms("mahalle", items);
       fillSelect(mahSel, items, window.I18n.t("query.select_mahalle") || "— Mahalle seçin —");
       mahSel.disabled = false;
